@@ -1,0 +1,57 @@
+<launch>
+  <master auto="start"/>
+
+  <!-- Run wpb_home core -->
+  <node pkg="wpb_home_bringup" type="wpb_home_core" name="wpb_home_core" output="screen">
+    <param name="serial_port" type="string" value="/dev/ftdi"/> 
+  </node>
+
+  <!--- Run Rplidar -->
+  <node name="rplidarNode"          pkg="rplidar_ros"  type="rplidarNode" output="screen">
+    <param name="serial_port"         type="string" value="/dev/rplidar"/>  
+    <param name="serial_baudrate"     type="int"    value="115200"/>
+    <param name="frame_id"            type="string" value="laser"/>
+    <param name="inverted"            type="bool"   value="false"/>
+    <param name="angle_compensate"    type="bool"   value="true"/>
+    <remap from="scan" to="scan_raw"/>
+  </node>
+    
+  <!-- Run lidar filter -->
+  <node pkg="wpb_home_bringup" type="wpb_home_lidar_filter" name="wpb_home_lidar_filter">
+    <param name="pub_topic" value="/scan"/>
+  </node>
+
+  <!-- Run the map server -->
+  <node name="map_server" pkg="map_server" type="map_server" args="$(find wpb_home_tutorials)/maps/map.yaml"/>
+
+  <!--- Run AMCL -->
+  <include file="$(find wpb_home_tutorials)/nav_lidar/amcl_omni.launch" />
+
+  <!--- Run move base -->
+  <node pkg="move_base" type="move_base" respawn="false" name="move_base"  output="screen">
+    <rosparam file="$(find wpb_home_tutorials)/nav_lidar/costmap_common_params.yaml" command="load" ns="global_costmap" />
+    <rosparam file="$(find wpb_home_tutorials)/nav_lidar/costmap_common_params.yaml" command="load" ns="local_costmap" />
+    <rosparam file="$(find wpb_home_tutorials)/nav_lidar/local_costmap_params.yaml" command="load" />
+    <rosparam file="$(find wpb_home_tutorials)/nav_lidar/global_costmap_params.yaml" command="load" />
+    <param name="base_global_planner" value="global_planner/GlobalPlanner" /> 
+    <param name="use_dijkstra" value="true"/>
+    <param name="base_local_planner" value="wpbh_local_planner/WpbhLocalPlanner" />
+
+    <param name= "controller_frequency" value="10" type="double"/>
+  </node>
+
+  <!-- RViz and TF tree -->
+  <arg name="model" default="$(find wpb_home_bringup)/urdf/wpb_home.urdf"/>
+  <arg name="gui" default="true" />
+  <arg name="rvizconfig" default="$(find wpb_home_tutorials)/rviz/nav.rviz" />
+
+  <param name="robot_description" command="$(find xacro)/xacro.py $(arg model)" />
+  <param name="use_gui" value="$(arg gui)"/>
+
+  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
+    <rosparam file="$(find wpb_home_bringup)/config/wpb_home.yaml" command="load" />
+  </node>
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher"/>
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true" />
+
+</launch>

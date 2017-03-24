@@ -1,0 +1,59 @@
+Language model created by QuickLM on Thu Mar 16 23:38:19 EDT 2017
+Copyright (c) 1996-2010 Carnegie Mellon University and Alexander I. Rudnicky
+
+The model is in standard ARPA format, designed by Doug Paul while he was at MITRE.
+
+The code that was used to produce this language model is available in Open Source.
+Please visit http://www.speech.cs.cmu.edu/tools/ for more information
+
+The (fixed) discount mass is 0.5. The backoffs are computed using the ratio method.
+This model based on a corpus of 4 sentences and 12 words
+
+\data\
+ngram 1=12
+ngram 2=14
+ngram 3=10
+
+\1-grams:
+-0.9542 </s> -0.3010
+-0.9542 <s> -0.2499
+-1.5563 ARE -0.2888
+-1.5563 FROM -0.2499
+-1.5563 GOODBYE -0.2499
+-1.5563 HELLO -0.2499
+-1.5563 IS -0.2888
+-1.5563 NAME -0.2499
+-1.5563 WHAT -0.2888
+-1.5563 WHERE -0.2888
+-1.5563 YOU -0.2888
+-1.5563 YOUR -0.2888
+
+\2-grams:
+-0.9031 <s> GOODBYE 0.0000
+-0.9031 <s> HELLO 0.0000
+-0.9031 <s> WHAT 0.0000
+-0.9031 <s> WHERE 0.0000
+-0.3010 ARE YOU 0.0000
+-0.3010 FROM </s> -0.3010
+-0.3010 GOODBYE </s> -0.3010
+-0.3010 HELLO </s> -0.3010
+-0.3010 IS YOUR 0.0000
+-0.3010 NAME </s> -0.3010
+-0.3010 WHAT IS 0.0000
+-0.3010 WHERE ARE 0.0000
+-0.3010 YOU FROM 0.0000
+-0.3010 YOUR NAME 0.0000
+
+\3-grams:
+-0.3010 <s> GOODBYE </s>
+-0.3010 <s> HELLO </s>
+-0.3010 <s> WHAT IS
+-0.3010 <s> WHERE ARE
+-0.3010 ARE YOU FROM
+-0.3010 IS YOUR NAME
+-0.3010 WHAT IS YOUR
+-0.3010 WHERE ARE YOU
+-0.3010 YOU FROM </s>
+-0.3010 YOUR NAME </s>
+
+\end\

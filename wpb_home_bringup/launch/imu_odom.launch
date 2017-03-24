@@ -1,0 +1,36 @@
+<launch>
+
+  <arg name="model" default="$(find wpb_home_bringup)/urdf/wpb_home.urdf"/>
+  <arg name="gui" default="true" />
+  <arg name="rvizconfig" default="$(find wpb_home_bringup)/rviz/odom.rviz" />
+
+  <param name="robot_description" command="$(find xacro)/xacro.py $(arg model)" />
+  <param name="use_gui" value="$(arg gui)"/>
+
+  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher" />
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true" />
+
+  <!-- wpb_home core-->
+  <node pkg="wpb_home_bringup" type="wpb_home_core" name="wpb_home_core" output="screen">
+    <param name="serial_port" type="string" value="/dev/ftdi"/> 
+    <param name="imu_odom" type="bool" value="true"/> 
+  </node>
+
+  <!-- imu tf-->
+  <node pkg="wpb_home_bringup" type="wpb_home_imu_tf" name="wpb_home_imu_tf" />
+
+   <!-- js node -->
+  <node respawn="true" pkg="joy" type="joy_node" name="wpb_home_joy" >
+    <param name="dev" type="string" value="/dev/input/js0" />
+    <param name="deadzone" value="0.12" />
+  </node>
+
+  <!-- Axes Velcmd -->
+  <param name="axis_linear" value="1" type="int"/>
+  <param name="axis_angular" value="0" type="int"/>
+  <param name="scale_linear" value="1" type="double"/>
+  <param name="scale_angular" value="1" type="double"/>
+  <node pkg="wpb_home_bringup" type="wpb_home_js_vel" name="teleop"/>
+
+</launch>

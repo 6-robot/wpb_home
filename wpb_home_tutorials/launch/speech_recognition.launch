@@ -1,0 +1,16 @@
+<launch>
+
+  <node name="recognizer" pkg="pocketsphinx" type="recognizer.py">
+    <param name="lm" value="$(find wpb_home_tutorials)/sr/sr_keyword.lm"/>
+    <param name="dict" value="$(find wpb_home_tutorials)/sr/sr_keyword.dic"/>
+  </node>
+
+  <!-- Run wpb_home_speech_recognition -->
+  <node pkg="wpb_home_tutorials" type="wpb_home_speech_recognition" name="wpb_home_speech_recognition" output="screen"/>
+  
+  <!-- Run wpb_home core -->
+  <node pkg="wpb_home_bringup" type="wpb_home_core" name="wpb_home_core" output="screen">
+    <param name="serial_port" type="string" value="/dev/ftdi"/> 
+  </node>
+
+</launch>

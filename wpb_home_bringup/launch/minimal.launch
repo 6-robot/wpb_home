@@ -1,0 +1,8 @@
+<launch>
+
+  <!-- wpb_home core-->
+  <node pkg="wpb_home_bringup" type="wpb_home_core" name="wpb_home_core" output="screen">
+    <param name="serial_port" type="string" value="/dev/ftdi"/> 
+  </node>
+
+</launch>

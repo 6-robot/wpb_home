@@ -1,0 +1,9 @@
+<launch>
+  
+  <!-- Run sound_play -->
+  <node name="soundplay_node" pkg="sound_play" type="soundplay_node.py"/>
+
+  <!-- Run wpb_home_speak -->
+  <node pkg="wpb_home_tutorials" type="wpb_home_speak" name="wpb_home_speak" output="screen"/>
+
+</launch>

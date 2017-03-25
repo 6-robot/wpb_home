@@ -1,28 +1,36 @@
-# WPB_Home Robot for ROS user
+# 启智ROS机器人开放源码
 
 ## 使用步骤
 
 1. 安装ROS(indigo/Ubuntu 14.04). [安装步骤](http://wiki.ros.org/indigo/Installation/Ubuntu)
 2. 配置好开发环境. [配置方法](http://wiki.ros.org/ROS/Tutorials/InstallingandConfiguringROSEnvironment)
-3. 获取源码并编译:
-
+3. 获取源码:
 ```
 cd ~/catkin_ws/src/
 git clone https://github.com/6-robot/wpb_home.git
+```
+4. 设置设备权限
+```
+roscd wpb_home_bringup
+cd scripts
+chmod +x create_udev_rules.sh
+./create_udev_rules.sh 
+```
+5. 编译
+```
 cd ~/catkin_ws
 catkin_make
 ```
-
-4. Enjoy yourself :)
+6. 开始享用 :)
 
 ## 平台介绍
-启智（ROS版）是一款为ROS机器人算法开发量身打造的机器人硬件平台，拥有硬件里程计、激光测距雷达、立体视觉相机和语音输入输出阵列等一系列，完美适配ROS的TF、Navigation、Actionlib和Pluginlib子系统，是深入学习ROS和高级机器人算法验证开发的理想平台。
-
+启智（ROS版）是[北京六部工坊科技有限公司](http://www.6-robot.com)为ROS机器人算法开发量身打造的一款机器人硬件平台，拥有硬件里程计、激光测距雷达、立体视觉相机和语音输入和立体声输出等一整套部件，完美适配ROS的TF、Navigation、Actionlib和Pluginlib子系统，是深入学习ROS和高级机器人算法验证开发的理想平台。
 ![wpb ros pic](http://63.223.108.84/wpb_ros/wpb_ros.jpg)
 
-## 结构组成
 
+## 硬件结构
 ![spec pic](http://63.223.108.84/wpb_ros/wpb_ros_spec.jpg)
+
 
 ## 功能特性
 

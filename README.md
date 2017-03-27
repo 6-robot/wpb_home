@@ -4,24 +4,40 @@
 
 1. 安装ROS(indigo/Ubuntu 14.04). [安装步骤](http://wiki.ros.org/indigo/Installation/Ubuntu)
 2. 配置好开发环境. [配置方法](http://wiki.ros.org/ROS/Tutorials/InstallingandConfiguringROSEnvironment)
-3. 获取源码:
+3. 安装依赖项:
+```
+sudo apt-get install ros-indigo-joy
+sudo apt-get install ros-indigo-hector-mapping
+sudo apt-get install ros-indigo-gmapping 
+sudo apt-get install ros-indigo-map-server
+sudo apt-get install ros-indigo-navigation
+sudo apt-get install ros-indigo-move-base
+sudo apt-get install ros-indigo-amcl
+sudo apt-get install gstreamer0.10-pocketsphinx
+sudo apt-get install gstreamer0.10-gconf
+sudo apt-get install ros-indigo-pocketsphinx
+sudo apt-get install ros-indigo-audio-common
+sudo apt-get install libasound2
+sudo apt-get install ros-indigo-sound-play
+```
+4. 获取源码:
 ```
 cd ~/catkin_ws/src/
 git clone https://github.com/6-robot/wpb_home.git
 ```
-4. 设置设备权限
+5. 设置设备权限
 ```
 roscd wpb_home_bringup
 cd scripts
 chmod +x create_udev_rules.sh
 ./create_udev_rules.sh 
 ```
-5. 编译
+6. 编译
 ```
 cd ~/catkin_ws
 catkin_make
 ```
-6. 开始享用 :)
+7. 欢迎享用 :)
 
 ## 平台介绍
 启智（ROS版）是[北京六部工坊科技有限公司](http://www.6-robot.com)为ROS机器人算法开发量身打造的一款机器人硬件平台，拥有硬件里程计、激光测距雷达、立体视觉相机和语音输入和立体声输出等一整套部件，完美适配ROS的TF、Navigation、Actionlib和Pluginlib子系统，是深入学习ROS和高级机器人算法验证开发的理想平台。

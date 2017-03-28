@@ -44,50 +44,56 @@ void KeywordCB(const std_msgs::String::ConstPtr & msg)
 {
     ROS_WARN("[KeywordCB] - %s",msg->data.c_str());
 
-  geometry_msgs::Twist vel_cmd;
-  vel_cmd.linear.x = 0;
-  vel_cmd.linear.y = 0;
-  vel_cmd.linear.z = 0;
-  vel_cmd.angular.x = 0;
-  vel_cmd.angular.y = 0;
-  vel_cmd.angular.z = 0;
+    geometry_msgs::Twist vel_cmd;
+    vel_cmd.linear.x = 0;
+    vel_cmd.linear.y = 0;
+    vel_cmd.linear.z = 0;
+    vel_cmd.angular.x = 0;
+    vel_cmd.angular.y = 0;
+    vel_cmd.angular.z = 0;
 
-  if(msg->data.find("forward")>0)
-  {
-      vel_cmd.linear.x = 0.1;
-  }
-  if(msg->data.find("backward")>0)
-  {
-      vel_cmd.linear.x = -0.1;
-  }
-  if(msg->data.find("left")>0)
-  {
-      vel_cmd.linear.y = 0.1;
-  }
-  if(msg->data.find("right")>0)
-  {
-      vel_cmd.linear.y = -0.1;
-  }
-  if(msg->data.find("stop")>0)
-  {
-      vel_cmd.linear.x = 0;
-      vel_cmd.linear.y = 0;
-      vel_cmd.angular.z = 0;
-  }
+    int nFindIndex = 0;
+    nFindIndex = msg->data.find("forward");
+    if(nFindIndex >= 0)
+    {
+        vel_cmd.linear.x = 0.1;
+    }
+    nFindIndex = msg->data.find("backward");
+    if(nFindIndex >= 0)
+    {
+        vel_cmd.linear.x = -0.1;
+    }
+    nFindIndex = msg->data.find("left");
+    if(nFindIndex >= 0)
+    {
+        vel_cmd.linear.y = 0.1;
+    }
+    nFindIndex = msg->data.find("right");
+    if(nFindIndex >= 0)
+    {
+        vel_cmd.linear.y = -0.1;
+    }
+    nFindIndex = msg->data.find("stop");
+    if(nFindIndex >= 0)
+    {
+        vel_cmd.linear.x = 0;
+        vel_cmd.linear.y = 0;
+        vel_cmd.angular.z = 0;
+    }
 
-  vel_pub.publish(vel_cmd);
+    vel_pub.publish(vel_cmd);
 }
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "wpb_home_voice_cmd");
+    ros::init(argc, argv, "wpb_home_voice_cmd");
 
-  ros::NodeHandle n;
-  vel_pub = n.advertise<geometry_msgs::Twist>("/cmd_vel", 10);
+    ros::NodeHandle n;
+    vel_pub = n.advertise<geometry_msgs::Twist>("/cmd_vel", 10);
 
-  ros::Subscriber sub_sr = n.subscribe("/recognizer/output", 10, KeywordCB);
+    ros::Subscriber sub_sr = n.subscribe("/recognizer/output", 10, KeywordCB);
 
-  ros::spin();
+    ros::spin();
 
-  return 0;
+    return 0;
 }

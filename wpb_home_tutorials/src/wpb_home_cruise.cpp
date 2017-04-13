@@ -38,6 +38,7 @@
 #include <ros/ros.h>
 #include <move_base_msgs/MoveBaseAction.h>
 #include <actionlib/client/simple_action_client.h>
+#include <tf/tf.h>
 #include <tf/transform_listener.h>
 #include <visualization_msgs/Marker.h>
 
@@ -51,25 +52,43 @@ static visualization_msgs::Marker text_marker;
 void Init_WayPoints()
 {
     move_base_msgs::MoveBaseGoal newWayPoint;
+    tf::Quaternion q;
+
     newWayPoint.target_pose.header.frame_id = "map";
     newWayPoint.target_pose.pose.position.x = 0.0;
     newWayPoint.target_pose.pose.position.y = 0.0;
-    newWayPoint.target_pose.pose.orientation.w = 1.0;
+    q.setRPY( 0, 0, 0 );
+    newWayPoint.target_pose.pose.orientation.x = q.x();
+    newWayPoint.target_pose.pose.orientation.y = q.y();
+    newWayPoint.target_pose.pose.orientation.z = q.z();
+    newWayPoint.target_pose.pose.orientation.w = q.w();
     arWayPoint.push_back(newWayPoint);
 
     newWayPoint.target_pose.pose.position.x = 1.0;
     newWayPoint.target_pose.pose.position.y = 0.0;
-    newWayPoint.target_pose.pose.orientation.w = 1.0;
+    q.setRPY( 0, 0, 0 );
+    newWayPoint.target_pose.pose.orientation.x = q.x();
+    newWayPoint.target_pose.pose.orientation.y = q.y();
+    newWayPoint.target_pose.pose.orientation.z = q.z();
+    newWayPoint.target_pose.pose.orientation.w = q.w();
     arWayPoint.push_back(newWayPoint);
 
     newWayPoint.target_pose.pose.position.x = 1.0;
     newWayPoint.target_pose.pose.position.y = 1.0;
-    newWayPoint.target_pose.pose.orientation.w = 1.0;
+    q.setRPY( 0, 0, 1.57 );
+    newWayPoint.target_pose.pose.orientation.x = q.x();
+    newWayPoint.target_pose.pose.orientation.y = q.y();
+    newWayPoint.target_pose.pose.orientation.z = q.z();
+    newWayPoint.target_pose.pose.orientation.w = q.w();
     arWayPoint.push_back(newWayPoint);
 
     newWayPoint.target_pose.pose.position.x = 0.0;
     newWayPoint.target_pose.pose.position.y = 1.0;
-    newWayPoint.target_pose.pose.orientation.w = 1.0;
+    q.setRPY( 0, 0, 3.14 );
+    newWayPoint.target_pose.pose.orientation.x = q.x();
+    newWayPoint.target_pose.pose.orientation.y = q.y();
+    newWayPoint.target_pose.pose.orientation.z = q.z();
+    newWayPoint.target_pose.pose.orientation.w = q.w();
     arWayPoint.push_back(newWayPoint);
 }
 

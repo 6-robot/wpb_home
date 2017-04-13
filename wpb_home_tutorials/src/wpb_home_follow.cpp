@@ -41,12 +41,14 @@
 #include <pcl_ros/point_cloud.h>
 #include <pcl_ros/transforms.h>
 #include <sensor_msgs/PointCloud2.h>
+#include <sensor_msgs/LaserScan.h>
 #include <pcl_conversions/pcl_conversions.h>
 #include <geometry_msgs/PointStamped.h>
 #include <tf/transform_listener.h>
 #include <visualization_msgs/Marker.h>
 #include <math.h>
-
+#include "kl_outlier.h"
+#include "wpb_home_tutorials/Follow.h"
 
 static std::string pc_topic;
 static ros::Publisher vel_pub;
@@ -56,10 +58,13 @@ static tf::TransformListener *tf_listener;
 static visualization_msgs::Marker line_box;
 static visualization_msgs::Marker line_follow;
 static visualization_msgs::Marker text_marker;
-static float flw_x = 1.0;
+static bool bActive = false;
+static float ranges[360];
+static float keep_dist = 1.0;   //跟随距离
+static float flw_x = keep_dist;
 static float flw_y = 0;
 static float max_linear_vel = 0.5;
-static float max_angular_vel = 0.5;
+static float max_angular_vel = 1.5;
 
 void DrawBox(float inMinX, float inMaxX, float inMinY, float inMaxY, float inMinZ, float inMaxZ, float inR, float inG, float inB);
 void DrawText(std::string inText, float inScale, float inX, float inY, float inZ, float inR, float inG, float inB);
@@ -84,10 +89,11 @@ void ProcCloudCB(const sensor_msgs::PointCloud2 &input)
     float maxx = flw_x;
     float miny = flw_y;
     float maxy = flw_y;
-    float minz = 1.5;
-    float maxz = 1.55;
-    double new_flw_x = 0;
-    double new_flw_y = 0;
+    float minz = 0;
+    float maxz = 1.8;
+    float* raw = new float[cloud_src.size()*2];
+    float new_flw_x = 0;
+    float new_flw_y = 0;
     int nPointCount = 0;
     for(size_t i=0; i< cloud_src.size(); i++)
     {
@@ -100,6 +106,7 @@ void ProcCloudCB(const sensor_msgs::PointCloud2 &input)
                 new_flw_x += cloud_src.points[i].x;
                 new_flw_y += cloud_src.points[i].y;
                 nPointCount ++;
+                raw[2*i] = cloud_src.points[i].x; raw[2*i+1] = cloud_src.points[i].y;
                 if(cloud_src.points[i].x < minx) { minx = cloud_src.points[i].x; };
                 if(cloud_src.points[i].x > maxx) { maxx = cloud_src.points[i].x; };
                 if(cloud_src.points[i].y < miny) { miny = cloud_src.points[i].y; };
@@ -112,26 +119,30 @@ void ProcCloudCB(const sensor_msgs::PointCloud2 &input)
     cloud_follow.height = 1;
     new_flw_x /= nPointCount;
     new_flw_y /= nPointCount;
+    filter(flw_x,flw_y,ranges,raw,new_flw_x,new_flw_y);
     flw_x = new_flw_x;
     flw_y = new_flw_y;
 
     geometry_msgs::Twist vel_cmd;
-    float dx = sqrt(flw_x*flw_x + flw_y*flw_y) - 1.2;
-    float flw_linear = dx * 0.3;
-    if(fabs(flw_linear) > 0.1)
+    float flw_dist = sqrt(flw_x*flw_x + flw_y*flw_y);
+    float diff_dist = flw_dist - keep_dist;
+    float flw_linear = diff_dist * 0.3;
+    if(fabs(flw_linear) > 0.05)
     {
         vel_cmd.linear.x = flw_linear;
         if( vel_cmd.linear.x > max_linear_vel ) vel_cmd.linear.x = max_linear_vel;
         if( vel_cmd.linear.x < -max_linear_vel ) vel_cmd.linear.x = -max_linear_vel;
+        if( vel_cmd.linear.x < 0 ) vel_cmd.linear.x *= 0.3;
     }
     else
     {
         vel_cmd.linear.x = 0;
     }
     float d_angle = 0;
-    if(dx != 0) d_angle = atan(flw_y/dx);
-    float flw_turn = d_angle * 0.3;
-    if(fabs(flw_turn) > 0.3)
+    float abs_x = fabs(new_flw_x);
+    if(abs_x != 0) d_angle = atan(flw_y/abs_x);
+    float flw_turn = d_angle * 1.5;
+    if(fabs(flw_turn) > 0.1)
     {
         vel_cmd.angular.z = flw_turn;
         if( vel_cmd.angular.z > max_angular_vel ) vel_cmd.angular.z = max_angular_vel;
@@ -141,20 +152,31 @@ void ProcCloudCB(const sensor_msgs::PointCloud2 &input)
     {
         vel_cmd.angular.z = 0;
     }
-    vel_pub.publish(vel_cmd);
-    //ROS_WARN("target x= %.2f y= %.2f sp=%.2f turn= %.2f",flw_x,flw_y,vel_cmd.linear.x,vel_cmd.angular.z);
-
+    if(bActive == true)
+    {
+        vel_pub.publish(vel_cmd);
+    }
+    
     //output
     sensor_msgs::PointCloud2 output;
     pcl::toROSMsg(cloud_follow, output);
     output.header.frame_id = pc_footprint.header.frame_id;
     pc_pub.publish(output);
+    delete []raw;
 
     RemoveBoxes();
     float box_height = 1.8;
     DrawBox(minx,maxx,miny,maxy,0,box_height,0,1,0);
     DrawPath(flw_x,flw_y,0);
     DrawText("Follow_Target",0.1,flw_x,flw_y,box_height+0.05,1,1,0);
+}
+
+void ScanCB(const sensor_msgs::LaserScan::ConstPtr& scan)
+{
+    for(int i=0;i<360;i++)
+    {
+        ranges[i] = scan->ranges[i];
+    }
 }
 
 void DrawBox(float inMinX, float inMaxX, float inMinY, float inMaxY, float inMinZ, float inMaxZ, float inR, float inG, float inB)
@@ -266,21 +288,62 @@ void RemoveBoxes()
     marker_pub.publish(text_marker);
 }
 
+bool follow_start(wpb_home_tutorials::Follow::Request  &req, wpb_home_tutorials::Follow::Response &res)
+{
+    float fThredhold = (float) req.thredhold;
+    flw_x = fThredhold;
+    flw_y = 0;
+    keep_dist = flw_x;
+    thredhold(flw_x);
+    bActive = true;
+    ROS_WARN("[follow_start] thredhold = %.2f", fThredhold);
+    return true;
+}
+
+bool follow_stop(wpb_home_tutorials::Follow::Request  &req, wpb_home_tutorials::Follow::Response &res)
+{
+    float fThredhold = (float) req.thredhold;
+    ROS_WARN("[follow_stop] thredhold = %.2f", fThredhold);
+    bActive = false;
+    geometry_msgs::Twist vel_cmd;
+    vel_cmd.linear.x = 0;
+    vel_cmd.linear.y = 0;
+    vel_cmd.linear.z = 0;
+    vel_cmd.angular.x = 0;
+    vel_cmd.angular.y = 0;
+    vel_cmd.angular.z = 0;
+    vel_pub.publish(vel_cmd);
+    return true;
+}
+
+bool follow_resume(wpb_home_tutorials::Follow::Request  &req, wpb_home_tutorials::Follow::Response &res)
+{
+    float fThredhold = (float) req.thredhold;
+    ROS_WARN("[follow_resume] thredhold = %.2f", fThredhold);
+    bActive = true;
+    return true;
+}
 
 int main(int argc, char **argv)
 {
     ros::init(argc, argv, "wpb_home_follow");
-    //ROS_INFO("wpb_home_follow");
-    flw_x = 2.0;
+    ROS_WARN("[wpb_home_follow]");
+    flw_x = keep_dist;
     flw_y = 0;
+    thredhold(flw_x);
     tf_listener = new tf::TransformListener(); 
 
     ros::NodeHandle nh_param("~");
     nh_param.param<std::string>("topic", pc_topic, "/kinect2/sd/points");
+    nh_param.param<bool>("start", bActive, false);
 
     ros::NodeHandle nh;
     ros::Subscriber pc_sub = nh.subscribe(pc_topic, 1 , ProcCloudCB);
-    //ROS_WARN(pc_topic.c_str());
+    ros::Subscriber scan_sub = nh.subscribe<sensor_msgs::LaserScan>("/scan",1,ScanCB);
+
+    ros::ServiceServer start_svr = nh.advertiseService("wpb_home_follow/start", follow_start);
+    ros::ServiceServer stop_svr = nh.advertiseService("wpb_home_follow/stop", follow_stop);
+    ros::ServiceServer resume_svr = nh.advertiseService("wpb_home_follow/resume", follow_resume);
 
     vel_pub = nh.advertise<geometry_msgs::Twist>("/cmd_vel", 10);
     pc_pub = nh.advertise<sensor_msgs::PointCloud2>("follow_pointcloud",1);
@@ -291,5 +354,4 @@ int main(int argc, char **argv)
     delete tf_listener; 
 
     return 0;
-
 }

@@ -4,11 +4,11 @@
   <version>0.0.1</version>
   <description>The wpbh_local_planner package</description>
 
-  <maintainer email="zhangwanjie@126.com">Zhang Wanjie</maintainer>
+  <maintainer email="zhangwanjie@6-robot.com">Zhang Wanjie</maintainer>
 
   <license>BSD</license>
 
-  <author email="zhangwanjie@126.com">Zhang Wanjie</author>
+  <author email="zhangwanjie@6-robot.com">Zhang Wanjie</author>
   <url type="website">http://wiki.ros.org/wpb_home_app</url>
 
   <buildtool_depend>catkin</buildtool_depend>

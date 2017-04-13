@@ -6,9 +6,9 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
+        - /Grid1
         - /RobotModel1
-        - /Follow1
-        - /Marker_Follow1
+        - /TF1
       Splitter Ratio: 0.5
     Tree Height: 767
   - Class: rviz/Selection
@@ -103,11 +103,25 @@ Visualization Manager:
       Value: true
       Visual Enabled: true
     - Class: rviz/TF
-      Enabled: false
+      Enabled: true
       Frame Timeout: 15
       Frames:
-        All Enabled: true
-      Marker Scale: 0.5
+        All Enabled: false
+        base_footprint:
+          Value: true
+        base_link:
+          Value: false
+        body_link:
+          Value: false
+        kinect2_dock:
+          Value: false
+        kinect2_ir_optical_frame:
+          Value: false
+        kinect2_rgb_optical_frame:
+          Value: false
+        laser:
+          Value: false
+      Marker Scale: 1
       Name: TF
       Show Arrows: true
       Show Axes: true
@@ -115,49 +129,11 @@ Visualization Manager:
       Tree:
         {}
       Update Interval: 0
-      Value: false
-    - Alpha: 1
-      Autocompute Intensity Bounds: true
-      Autocompute Value Bounds:
-        Max Value: 10
-        Min Value: -10
-        Value: true
-      Axis: Z
-      Channel Name: intensity
-      Class: rviz/PointCloud2
-      Color: 255; 255; 255
-      Color Transformer: RGB8
-      Decay Time: 0
-      Enabled: true
-      Invert Rainbow: false
-      Max Color: 255; 255; 255
-      Max Intensity: 4096
-      Min Color: 0; 0; 0
-      Min Intensity: 0
-      Name: Follow
-      Position Transformer: XYZ
-      Queue Size: 10
-      Selectable: true
-      Size (Pixels): 3
-      Size (m): 0.02
-      Style: Flat Squares
-      Topic: /follow_pointcloud
-      Unreliable: false
-      Use Fixed Frame: true
-      Use rainbow: true
-      Value: true
-    - Class: rviz/Marker
-      Enabled: true
-      Marker Topic: /follow_marker
-      Name: Marker_Follow
-      Namespaces:
-        {}
-      Queue Size: 100
       Value: true
   Enabled: true
   Global Options:
     Background Color: 0; 85; 127
-    Fixed Frame: base_footprint
+    Fixed Frame: imu_base
     Frame Rate: 30
   Name: root
   Tools:
@@ -178,22 +154,22 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 3.65634
+      Distance: 2.33131
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.588816
-        Y: 0.491312
-        Z: 0.875016
+        X: 0.205472
+        Y: 0.0402065
+        Z: 0.680955
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.445438
+      Pitch: 0.299797
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 2.97287
+      Yaw: 0.38859
     Saved: ~
 Window Geometry:
   Displays:
@@ -211,5 +187,5 @@ Window Geometry:
   Views:
     collapsed: true
   Width: 1855
-  X: 55
-  Y: -14
+  X: 65
+  Y: 24

@@ -90,7 +90,6 @@ ros::Publisher clustering4;
 ros::Publisher masking;
 ros::Publisher color;
 
-boost::shared_ptr<sensor_msgs::CameraInfo const> CameraInfo;
 cv::Mat rgb_image;
 int img_counter = 0;
 
@@ -122,16 +121,10 @@ void ProcCloudCB(const sensor_msgs::PointCloud2 &input)
     cloud_source_ptr = cloud_src.makeShared(); 
 
     //process
-    ////////////////////////////////////////////////////////////////////////
     //printf ("Cloud: width = %d, height = %d\n", msg->width, msg->height);
-    //BOOST_FOREACH (const pcl::PointXYZ& pt, msg->points)
-    //printf ("\t(%f, %f, %f)\n", pt.x, pt.y, pt.z);
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr plane(new pcl::PointCloud<pcl::PointXYZRGB>);
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr convexHull(new pcl::PointCloud<pcl::PointXYZRGB>);
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr objects(new pcl::PointCloud<pcl::PointXYZRGB>);
-
-    //image_geometry::PinholeCameraModel cam_model;
-    //cam_model.fromCameraInfo(CameraInfo);
 
     // Get the plane model, if present.
     pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients);
@@ -177,14 +170,12 @@ void ProcCloudCB(const sensor_msgs::PointCloud2 &input)
         cloud_source_ptr.swap (cloud_f);
         i++;
     }
-    ////////////////////////////////////////////////////////////////////////////
 
     if (planeIndices->indices.size() == 0)
         std::cout << "Could not find a plane in the scene." << std::endl;
     else
     {
         // Copy the points of the plane to a new cloud.
-        //pcl::ExtractIndices<pcl::PointXYZRGB> extract;
         extract.setInputCloud(cloud_source_ptr);
         extract.setIndices(planeIndices);
         extract.filter(*plane);
@@ -211,7 +202,7 @@ void ProcCloudCB(const sensor_msgs::PointCloud2 &input)
             extract.setIndices(objectIndices);
             extract.filter(*objects);
             segmented_objects.publish(objects);
-            segmented_plane.publish(plane); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            segmented_plane.publish(plane); 
 
             // run clustering extraction on "objects" to get several pointclouds
             pcl::search::KdTree<pcl::PointXYZRGB>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZRGB>);
@@ -385,7 +376,6 @@ int main(int argc, char **argv)
     pc_pub = nh.advertise<sensor_msgs::PointCloud2>("obj_pointcloud",1);
     marker_pub = nh.advertise<visualization_msgs::Marker>("obj_marker", 10);
 
-    //CameraInfo  = ros::topic::waitForMessage<sensor_msgs::CameraInfo>("kinect2/qhd/camera_info");
     segmented_objects = nh.advertise<PointCloud> ("segmented_objects",1);
     segmented_plane = nh.advertise<PointCloud> ("segmented_plane",1);
 

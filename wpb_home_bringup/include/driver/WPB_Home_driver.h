@@ -47,6 +47,7 @@ public:
 	void Velocity(float inX, float inY, float inAngular);
 	void SendMotors(int inMotor1, int inMotor2, int inMotor3, int inMotor4);
 	float GetYaw();
+	void ManiCtrl(float inHeight, int inRaiseSpeed, float inGripper, int inGripperSpeed);
 	float fLinearAccLimit;
 	float fAngularAccLimit;
 
@@ -87,4 +88,6 @@ protected:
 	void m_ParseFrame();
 	void m_DisRecv();
 	int GenCmd(int inBuffOffset, int inDevID, int inModule, int inMethod, unsigned char* inData, int inDataLen);
+	void MotorCmd(int inMethod, int inID1, int inValue1, int inID2, int inValue2);
+	void MotorCmd2(int inMethod, int inID1, int inValue1_1, int inValue1_2, int inID2, int inValue2_1, int inValue2_2);
 };

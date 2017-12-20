@@ -232,11 +232,21 @@ target_link_libraries(wpb_home_lidar_filter
 )
 
 ## Declare a C++ executable
-
 add_executable(wpb_home_imu_tf
   src/wpb_home_imu_tf.cpp
 )
 add_dependencies(wpb_home_imu_tf ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(wpb_home_imu_tf
+  ${catkin_LIBRARIES}
+)
+
+## Declare a C++ executable
+add_executable(wpb_home_test_mani
+  src/wpb_home_test_mani.cpp
+  src/driver/SerialCom.cpp
+  src/driver/WPB_Home_driver.cpp
+)
+add_dependencies(wpb_home_test_mani ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(wpb_home_test_mani
   ${catkin_LIBRARIES}
 )

@@ -38,72 +38,85 @@
 #include <ros/ros.h>
 #include "driver/WPB_Home_driver.h"
 
-#define TEST_READY    0
-#define TEST_MOTOR1_F 1
-#define TEST_MOTOR1_N 2
-#define TEST_MOTOR2_F 3
-#define TEST_MOTOR2_N 4
-#define TEST_MOTOR3_F 5
-#define TEST_MOTOR3_N 6
+#define WPBH_TEST_MANI_ZERO 0
+#define WPBH_TEST_MANI_DOWN 1
+#define WPBH_TEST_MANI_UP   2
+#define WPBH_TEST_MANI_FOLD 3
+
+#define CMD_WAIT_SEC 6
+
+static int nState = WPBH_TEST_MANI_ZERO;
+static int nCount = 0;
 
 int main(int argc, char** argv)
 {
-    ros::init(argc,argv,"wpb_home_test_motors");
+    ros::init(argc,argv,"wpb_home_test_mani");
     ros::NodeHandle n;
 
-    ROS_INFO("[TEST] Motors...");
+    ROS_WARN("[TEST] Manipulator...");
     CWPB_Home_driver m_wpb_home;
-   ros::NodeHandle n_param("~");
+    ros::NodeHandle n_param("~");
     std::string strSerialPort;
     n_param.param<std::string>("serial_port", strSerialPort, "/dev/ttyUSB0");
     m_wpb_home.Open(strSerialPort.c_str(),115200);
     
-    int nTest = TEST_READY;
-    ros::Rate r(0.3);
-    int nMotorSpeed = 3000;
+    ros::Rate r(1);
 
-    while(n.ok())
+    while(ros::ok())
     {
-        switch(nTest)
-        {
-        case TEST_READY:
-            ROS_INFO("TEST_READY");
-            m_wpb_home.SendMotors(0,0,0,0);
-            nTest ++;
+        switch(nState)
+        { 
+        case WPBH_TEST_MANI_ZERO:   //收起状态,先变成初始状态
+            ROS_INFO("[Mani] ZERO -> DOWN... %d",nCount);
+            if (nCount == 0)
+            {
+                m_wpb_home.ManiCtrl( 11200,  1000, 50000, 1000);
+            }
+            nCount ++;
+            if(nCount >= CMD_WAIT_SEC)
+            {
+                nState = WPBH_TEST_MANI_DOWN;
+                nCount = 0;
+            }
             break;
-        case TEST_MOTOR1_F:
-            ROS_INFO("TEST_MOTOR1_F");
-            m_wpb_home.SendMotors(nMotorSpeed,0,0,0);
-            nTest ++;
+        case WPBH_TEST_MANI_DOWN:
+            ROS_INFO("[Mani] DOWN -> UP ... %d",nCount);
+            if (nCount == 0)
+            {
+                m_wpb_home.ManiCtrl( 55000,  1000, 0, 1000);
+            }
+            nCount ++;
+            if(nCount >= CMD_WAIT_SEC)
+            {
+                nState = WPBH_TEST_MANI_UP;
+                nCount = 0;
+            }
             break;
-        case TEST_MOTOR1_N:
-            ROS_INFO("TEST_MOTOR1_N");
-            m_wpb_home.SendMotors(-nMotorSpeed,0,0,0);
-            nTest ++;
+        case WPBH_TEST_MANI_UP:
+             ROS_INFO("[Mani] UP -> DOWN ... %d",nCount);
+            if (nCount == 0)
+            {
+                m_wpb_home.ManiCtrl( 11200,  1000, 0, 1000);
+            }
+            nCount ++;
+            if(nCount >= CMD_WAIT_SEC)
+            {
+                nState = WPBH_TEST_MANI_FOLD;
+                nCount = 0;
+            }
             break;
-        case TEST_MOTOR2_F:
-            ROS_INFO("TEST_MOTOR2_F");
-            m_wpb_home.SendMotors(0,nMotorSpeed,0,0);
-            nTest ++;
-            break;
-        case TEST_MOTOR2_N:
-            ROS_INFO("TEST_MOTOR2_N");
-            m_wpb_home.SendMotors(0,-nMotorSpeed,0,0);
-            nTest ++;
-            break; 
-        case TEST_MOTOR3_F:
-            ROS_INFO("TEST_MOTOR3_F");
-            m_wpb_home.SendMotors(0,0,nMotorSpeed,0);
-            nTest ++;
-            break;
-        case TEST_MOTOR3_N:
-            ROS_INFO("TEST_MOTOR3_N");
-            m_wpb_home.SendMotors(0,0,-nMotorSpeed,0);
-            nTest ++;
-            break;
-        default:
-            nTest = TEST_READY;
-            m_wpb_home.SendMotors(0,0,0,0);
+         case WPBH_TEST_MANI_FOLD:
+             ROS_INFO("[Mani] DOWN -> ZERO ... %d",nCount);
+            if (nCount == 0)
+            {
+                m_wpb_home.ManiCtrl( 0,  1000, 0, 1000);
+            }
+            nCount ++;
+            if(nCount >= CMD_WAIT_SEC)
+            {
+                nState = WPBH_TEST_MANI_ZERO;
+                nCount = 0;
+            }
             break;
         }
        

@@ -315,3 +315,44 @@ float CWPB_Home_driver::GetYaw()
 	float diffYaw = fCurYaw - fFirstYaw;
 	return diffYaw;
 }
+
+
+void CWPB_Home_driver::MotorCmd(int inMethod, int inID1, int inValue1, int inID2, int inValue2)
+{
+	static unsigned char arMotorSpeedData[12];
+	m_Split2Bytes(arMotorSpeedData,inID1);
+	m_Split4Bytes(arMotorSpeedData + 2, inValue1);
+
+	m_Split2Bytes(arMotorSpeedData + 6, inID2);
+	m_Split4Bytes(arMotorSpeedData + 8, inValue2);
+	int nCmdLenght = GenCmd(0, 0x40, 0x08, inMethod, arMotorSpeedData, 12);
+	Send(m_SendBuf, nCmdLenght);
+}
+
+
+void CWPB_Home_driver::MotorCmd2(int inMethod, int inID1, int inValue1_1, int inValue1_2, int inID2, int inValue2_1, int inValue2_2)
+{
+	static unsigned char arMotorCmdData[20];
+	m_Split2Bytes(arMotorCmdData, inID1);
+	m_Split4Bytes(arMotorCmdData + 2, inValue1_1);
+	m_Split4Bytes(arMotorCmdData + 6, inValue1_2);
+
+	m_Split2Bytes(arMotorCmdData + 10, inID2);
+	m_Split4Bytes(arMotorCmdData + 12, inValue2_1);
+	m_Split4Bytes(arMotorCmdData + 16, inValue2_2);
+	int nCmdLenght = GenCmd(0, 0x40, 0x08, inMethod, arMotorCmdData, 20);
+	Send(m_SendBuf, nCmdLenght);
+}
+
+void CWPB_Home_driver::ManiCtrl(float inHeight, int inRaiseSpeed, float inGripper, int inGripperSpeed)
+{
+	if(inHeight > 0.01)
+	{
+		MotorCmd2(0x63, 5, inRaiseSpeed, inHeight, 6, inGripperSpeed, inGripper);
+	}
+	else
+	{
+		// 折叠
+		MotorCmd2(0x64, 5, inRaiseSpeed, inHeight, 6, inGripperSpeed, inGripper);
+	}
+}

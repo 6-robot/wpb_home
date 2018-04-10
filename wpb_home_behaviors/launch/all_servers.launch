@@ -1,0 +1,14 @@
+<launch>
+
+  <node name="wpb_home_follow" pkg="wpb_home_tutorials" type="wpb_home_follow">
+    <param name="start" type="bool" value="false"/> 
+  </node>
+
+  <node pkg="wpb_home_behaviors" type="wpb_home_grab_server" name="wpb_home_grab_server">
+    <param name="start" type="bool" value="false"/> 
+    <rosparam file="$(find wpb_home_bringup)/config/wpb_home.yaml" command="load" />
+  </node>
+
+  <node pkg="wpb_home_behaviors" type="wpb_home_pass_server" name="wpb_home_pass_server"/>
+
+</launch>

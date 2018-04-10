@@ -70,7 +70,7 @@ int main(int argc, char** argv)
             ROS_INFO("[Mani] ZERO -> DOWN... %d",nCount);
             if (nCount == 0)
             {
-                m_wpb_home.ManiCtrl( 11200,  1000, 50000, 80);
+                m_wpb_home.ManiPos( 11200,  1000, 50000, 80);
             }
             nCount ++;
             if(nCount >= CMD_WAIT_SEC)
@@ -83,7 +83,7 @@ int main(int argc, char** argv)
             ROS_INFO("[Mani] DOWN -> UP ... %d",nCount);
             if (nCount == 0)
             {
-                m_wpb_home.ManiCtrl( 55000,  1000, 50000, 80);
+                m_wpb_home.ManiPos( 55000,  1000, 50000, 80);
             }
             nCount ++;
             if(nCount >= CMD_WAIT_SEC)
@@ -96,7 +96,7 @@ int main(int argc, char** argv)
              ROS_INFO("[Mani] UP -> DOWN ... %d",nCount);
             if (nCount == 0)
             {
-                m_wpb_home.ManiCtrl( 11200,  1000, 0, 80);
+                m_wpb_home.ManiPos( 11200,  1000, 0, 80);
             }
             nCount ++;
             if(nCount >= CMD_WAIT_SEC)
@@ -109,7 +109,7 @@ int main(int argc, char** argv)
              ROS_INFO("[Mani] DOWN -> ZERO ... %d",nCount);
             if (nCount == 0)
             {
-                m_wpb_home.ManiCtrl( 0,  1000, 0, 80);
+                m_wpb_home.ManiPos( 0,  1000, 0, 80);
             }
             nCount ++;
             if(nCount >= CMD_WAIT_SEC)

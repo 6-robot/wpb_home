@@ -1,0 +1,23 @@
+<launch>
+  <master auto="start"/>
+  
+  <!-- rviz -->
+  <arg name="gui" default="true" />
+  <param name="use_gui" value="$(arg gui)"/>
+  <arg name="rvizconfig" default="$(find wpb_home_remote)/rviz/slam.rviz" />
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true" />
+  
+  <!-- joy node -->
+  <node respawn="true" pkg="joy" type="joy_node" name="wpb_home_joy" >
+    <param name="dev" type="string" value="/dev/input/js0" />
+    <param name="deadzone" value="0.12" />
+  </node>
+
+  <!-- Axes Velcmd -->
+  <param name="axis_linear" value="1" type="int"/>
+  <param name="axis_angular" value="0" type="int"/>
+  <param name="scale_linear" value="1" type="double"/>
+  <param name="scale_angular" value="1" type="double"/>
+  <node pkg="wpb_home_bringup" type="wpb_home_js_vel" name="teleop"/>
+
+</launch>

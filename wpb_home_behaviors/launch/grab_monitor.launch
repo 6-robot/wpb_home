@@ -1,0 +1,7 @@
+<launch>
+
+    <arg name="gui" default="true" />
+    <arg name="rvizconfig" default="$(find wpb_home_behaviors)/rviz/grab.rviz" />
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true" />
+
+</launch>

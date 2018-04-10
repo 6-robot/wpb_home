@@ -54,11 +54,12 @@ CWPB_Home_driver::CWPB_Home_driver()
 	{
 		arValAD[i] = 0;
 	}
-	for (int i = 0; i < 4;i++)
+	for (int i = 0; i < 6;i++)
 	{
 		arMotorCurrent[i] = 0;
 		arMotorPos[i] = 0;
 	}
+	arMotorPos[5] = 47998;
 	nParseCount = 0;
 	fQuatW = 0;
 	fQuatX = 0;
@@ -77,9 +78,25 @@ CWPB_Home_driver::CWPB_Home_driver()
 	fFirstYaw = 0;
 	bCalFirstYaw = false; 
 
-
 	fLinearAccLimit = 0.2;
 	fAngularAccLimit = 0.1;
+
+	//mani gripper
+	arManiGripperValue[0] = 0;
+	arManiGripperPos[0] = 47998;
+	arManiGripperValue[1] = 0.034;
+	arManiGripperPos[1] = 40000;
+	arManiGripperValue[2] = 0.07;
+	arManiGripperPos[2] = 30000;
+	arManiGripperValue[3] = 0.102;
+	arManiGripperPos[3] = 20000;
+	arManiGripperValue[4] = 0.133;
+	arManiGripperPos[4] = 10000;
+	arManiGripperValue[5] = 0.16;
+	arManiGripperPos[5] = 0;
+
+	nLastCmdLiftPos = 0;
+	nLastCmdGripperPos = 0;
 }
     
 CWPB_Home_driver::~CWPB_Home_driver()
@@ -179,11 +196,12 @@ void CWPB_Home_driver::m_ParseFrame()
 
 	if (m_ParseBuf[4] == 0x08)	//Motor
 	{
-		int nCurMotorID = m_ParseBuf[8]-1;
-		if (nCurMotorID < 4)
+		int nCurMotorID = m_ParseBuf[8];
+		if (nCurMotorID > 0 && nCurMotorID < 10)
 		{
-			arMotorCurrent[nCurMotorID] = m_IntFromChar(&m_ParseBuf[9]);
-			arMotorPos[nCurMotorID] = m_IntFromChar(&m_ParseBuf[13]);
+			int nMotorIndex = nCurMotorID - 1;
+			arMotorCurrent[nMotorIndex] = m_IntFromChar(&m_ParseBuf[9]);
+			arMotorPos[nMotorIndex] = m_IntFromChar(&m_ParseBuf[13]);
 		}
 	}
 
@@ -344,7 +362,7 @@ void CWPB_Home_driver::MotorCmd2(int inMethod, int inID1, int inValue1_1, int in
 	Send(m_SendBuf, nCmdLenght);
 }
 
-void CWPB_Home_driver::ManiCtrl(float inHeight, int inRaiseSpeed, float inGripper, int inGripperSpeed)
+void CWPB_Home_driver::ManiPos(float inHeight, int inRaiseSpeed, float inGripper, int inGripperSpeed)
 {
 	if(inHeight > 0.01)
 	{
@@ -355,4 +373,91 @@ void CWPB_Home_driver::ManiCtrl(float inHeight, int inRaiseSpeed, float inGrippe
 		// 折叠
 		MotorCmd2(0x64, 5, inRaiseSpeed, inHeight, 6, inGripperSpeed, inGripper);
 	}
+}
+
+static float nMinHeight = 0.493;
+static float nMaxHeight = 1.036;
+void CWPB_Home_driver::ManiCmd(float inManiLift, float inLiftSpeed, float inManiGripper, float inGripperSpeed)
+{
+	int nLiftPos = nLastCmdLiftPos;
+	float tmpLift = inManiLift;
+	unsigned char ctrl_code = 0x63;
+	if (inManiLift < 0)
+	{
+		nLiftPos = nLastCmdLiftPos;
+		if(nLiftPos < 11201)
+		{
+			ctrl_code = 0x64;
+		}
+	}
+	else
+	{
+		if (tmpLift < nMinHeight)
+		{
+			tmpLift = 0;
+			ctrl_code = 0x64;
+		}
+		if (tmpLift > nMaxHeight)
+		{
+			tmpLift = nMaxHeight;
+		}
+		nLiftPos = (tmpLift - nMinHeight) * 76660 + 11201;
+	}
+	int nLiftSpeed = inLiftSpeed * 1960;
+	if(nLiftSpeed > 4000)
+	{
+		nLiftSpeed = 4000;
+	}
+
+	int nGripperPos = nLastCmdGripperPos;
+	if (inManiGripper >= 0)
+	{
+		float tmpGripper = inManiGripper;
+		nGripperPos = arManiGripperPos[0];
+		if (tmpGripper < arManiGripperValue[0])
+		{
+			tmpGripper = arManiGripperValue[0];
+			nGripperPos = arManiGripperPos[0];
+		}
+		if (tmpGripper > arManiGripperValue[5])
+		{
+			tmpGripper = arManiGripperValue[5];
+			nGripperPos = arManiGripperPos[5];
+		}
+		for (int i = 0; i < 5; i++)
+		{
+			if (tmpGripper == arManiGripperValue[i + 1])
+			{
+				nGripperPos = arManiGripperPos[i + 1];
+				break;
+			}
+			if (tmpGripper > arManiGripperValue[i] && tmpGripper < arManiGripperValue[i+1])
+			{
+				float fKG = (arManiGripperPos[i] - arManiGripperPos[i + 1]) / (arManiGripperValue[i] - arManiGripperValue[i + 1]);
+				nGripperPos = arManiGripperPos[i] + (tmpGripper - arManiGripperValue[i])*fKG;
+				break;
+			}
+		}
+	}
+
+	int nGripperSpeed = inGripperSpeed * 178;
+
+	nLastCmdLiftPos = nLiftPos;
+	nLastCmdGripperPos = nGripperPos;
+	
+	MotorCmd2(ctrl_code, 5, nLiftSpeed, nLiftPos, 6, nGripperSpeed, nGripperPos);
+}
+
+bool CWPB_Home_driver::ManiArrived()
+{
+	bool bArrived = true;
+	if(abs (arMotorPos[4] - nLastCmdLiftPos) > 100 )
+	{
+		bArrived = false;
+	}
+	if(abs (arMotorPos[5] - nLastCmdGripperPos) > 100 )
+	{
+		bArrived = false;
+	}
+	return bArrived;
 }

@@ -1,3 +1,9 @@
 zeros:
- kinect_height: 1.64
- kinect_pitch: -0.18
+ kinect_height: 1.38
+ kinect_pitch: -0.50
+
+grab:
+ grab_y_offset: 0.0         #抓取前，对准物品，机器人的横向位移偏移量。大-往左修正；小-往右修正
+ grab_lift_offset: 0.0      #手臂抬起高度的补偿偏移量。大-往高修正；小-往低修正
+ grab_forward_offset: 0.0   #手臂抬起后，机器人向前抓取物品移动的位移偏移量。大-往前修正；小-往后修正
+ grab_gripper_value: 0.035  #抓取物品时，手爪闭合后的手指间距。大-手指间距变大；小-手指间距变小

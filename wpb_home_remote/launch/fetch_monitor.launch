@@ -1,0 +1,11 @@
+<launch>
+
+    <master auto="start"/>
+
+    <!-- RViz -->
+    <arg name="gui" default="true" />
+    <arg name="rvizconfig" default="$(find wpb_home_remote)/rviz/nav.rviz" />
+    <param name="use_gui" value="$(arg gui)"/>
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true" />
+
+</launch>

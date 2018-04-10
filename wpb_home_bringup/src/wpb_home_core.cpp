@@ -41,15 +41,54 @@
 #include <sensor_msgs/Imu.h>
 #include <geometry_msgs/Pose2D.h>
 #include <geometry_msgs/Twist.h>
+#include <sensor_msgs/JointState.h>
+#include <std_msgs/String.h>
 #include "driver/WPB_Home_driver.h"
 #include <math.h>
 
 static CWPB_Home_driver m_wpb_home;
 static int nLastMotorPos[3];
-void cmdVelCallback(const geometry_msgs::Twist::ConstPtr& msg)
+void CmdVelCallback(const geometry_msgs::Twist::ConstPtr& msg)
 {
     //ROS_INFO("[wpb_home] liner(%.2f %.2f) angular(%.2f)", msg->linear.x,msg->linear.y,msg->angular.z);
     m_wpb_home.Velocity(msg->linear.x,msg->linear.y,msg->angular.z);
+}
+
+static float kForearm = 1.57/11200;
+static float fLiftValue = 0;
+static float fLiftVelocity = 0;
+static float fGripperValue = 0;
+static float fGripperVelocity = 0;
+void ManiCtrlCallback(const sensor_msgs::JointState::ConstPtr& msg)
+{
+    int nNumJoint = msg->position.size();
+    // for(int i=0;i<nNumJoint;i++)
+    // {
+    //     ROS_INFO("[wpb_home] %d - %s = %.2f  vel= %.2f", i, msg->name[i].c_str(),msg->position[i],msg->velocity[i]);
+    // }
+    //高度升降
+    fLiftValue = msg->position[0];
+    fLiftVelocity = msg->velocity[0];
+    //手爪
+    fGripperValue = msg->position[1];
+    fGripperVelocity = msg->velocity[1];
+
+    m_wpb_home.ManiCmd(fLiftValue, fLiftVelocity, fGripperValue, fGripperVelocity);
+}
+
+static geometry_msgs::Pose2D pose_diff_msg;
+void CtrlCallback(const std_msgs::String::ConstPtr &msg)
+{
+    int nFindIndex = 0;
+    nFindIndex = msg->data.find("pose_diff reset");
+    if( nFindIndex >= 0 )
+    {
+        pose_diff_msg.x = 0;
+        pose_diff_msg.y = 0;
+        pose_diff_msg.theta = 0;
+        //ROS_WARN("[pose_diff reset]");
+    }
+
 }
 
 static float fKVx = 1.0f/sqrt(3.0f);
@@ -67,7 +106,8 @@ int main(int argc, char** argv)
 {
     ros::init(argc,argv,"wpb_home_core");
     ros::NodeHandle n;
-    ros::Subscriber cmd_vel_sub = n.subscribe("cmd_vel",10,&cmdVelCallback);
+    ros::Subscriber cmd_vel_sub = n.subscribe("cmd_vel",10,&CmdVelCallback);
+    ros::Subscriber mani_ctrl_sub = n.subscribe("/wpb_home/mani_ctrl",30,&ManiCtrlCallback);
     ros::Publisher imu_pub = n.advertise<sensor_msgs::Imu >("imu/data_raw", 100);
 
     ros::NodeHandle n_param("~");
@@ -82,6 +122,26 @@ int main(int argc, char** argv)
     current_time = ros::Time::now();
     last_time = ros::Time::now();
     ros::Rate r(100.0);
+
+    ros::Publisher joint_state_pub = n.advertise<sensor_msgs::JointState>("/joint_states",100);
+    sensor_msgs::JointState joint_msg;
+    std::vector<std::string> joint_name(6);
+    std::vector<double> joint_pos(6);
+
+    joint_name[0] = "mani_base";
+    joint_name[1] = "elbow_forearm";
+    joint_name[2] = "forearm_left_finger";
+    joint_name[3] = "forearm_right_finger";
+    joint_name[4] = "kinect_height";
+    joint_name[5] = "kinect_pitch";
+    joint_pos[0] = 0.0f;
+    joint_pos[1] = 0.0f;
+    joint_pos[2] = 0.0f;
+    joint_pos[3] = 0.0f;
+    joint_pos[4] = 0.0f;
+    joint_pos[5] = 0.0f;
+    n_param.getParam("zeros/kinect_height", joint_pos[4]);
+    n_param.getParam("zeros/kinect_pitch", joint_pos[5]);
 
     ros::Publisher odom_pub;
     geometry_msgs::TransformStamped odom_trans;
@@ -108,6 +168,12 @@ int main(int argc, char** argv)
     odom.twist.twist.angular.x = 0;
     odom.twist.twist.angular.y = 0;
     odom.twist.twist.angular.z = 0;
+
+    ros::Subscriber ctrl_sub = n.subscribe("/wpb_home/ctrl",10,&CtrlCallback);
+    ros::Publisher pose_diff_pub = n.advertise<geometry_msgs::Pose2D>("/wpb_home/pose_diff",1);
+    pose_diff_msg.x = 0;
+    pose_diff_msg.y = 0;
+    pose_diff_msg.theta = 0;
 
     lastPose.x = lastPose.y = lastPose.theta = 0;
     lastVel.linear.x = lastVel.linear.y = lastVel.linear.z = lastVel.angular.x = lastVel.angular.y = lastVel.angular.z = 0;
@@ -154,6 +220,12 @@ int main(int argc, char** argv)
                 lastPose.y += dy;
                 lastPose.theta += (fVz*fTimeDur);
 
+                double pd_dx = (lastVel.linear.x*cos(pose_diff_msg.theta) - lastVel.linear.y*sin(pose_diff_msg.theta))*fTimeDur;
+                double pd_dy = (lastVel.linear.x*sin(pose_diff_msg.theta) + lastVel.linear.y*cos(pose_diff_msg.theta))*fTimeDur;
+                pose_diff_msg.x += pd_dx;
+                pose_diff_msg.y += pd_dy;
+                pose_diff_msg.theta += (fVz*fTimeDur);
+
                 odom_quat = tf::createQuaternionMsgFromRollPitchYaw(0,0,lastPose.theta);
                 //updata transform
                 odom_trans.header.stamp = current_time;
@@ -169,7 +241,6 @@ int main(int argc, char** argv)
                 odom.pose.pose.position.y = lastPose.y;
                 odom.pose.pose.position.z = 0.0;
                 odom.pose.pose.orientation = odom_quat;
-
                 //velocity
                 odom.twist.twist.linear.x = fVx;
                 odom.twist.twist.linear.y = fVy;
@@ -198,6 +269,9 @@ int main(int argc, char** argv)
                 odom_pub.publish(odom);
                 //ROS_INFO("[odom] zero");
             }
+
+            pose_diff_pub.publish(pose_diff_msg);
+            //ROS_INFO("[pose_diff_msg] x= %.2f  y=%.2f  th= %.2f", pose_diff_msg.x,pose_diff_msg.y,pose_diff_msg.theta);
         }
         else
         {
@@ -220,6 +294,24 @@ int main(int argc, char** argv)
 
             imu_pub.publish(imu_msg);
         }
+
+        // mani tf
+        joint_msg.header.stamp = ros::Time::now();
+        joint_msg.header.seq ++;
+        joint_pos[0] = m_wpb_home.arMotorPos[4] * 0.00001304;
+        if(m_wpb_home.arMotorPos[4] < 11200)
+        {
+            joint_pos[1] = m_wpb_home.arMotorPos[4]*kForearm;
+        }
+        else
+        {
+            joint_pos[1] = 1.57;
+        }
+        joint_pos[2] = (47998 - m_wpb_home.arMotorPos[5]) * 0.00001635;
+        joint_pos[3] = joint_pos[2];
+        joint_msg.name = joint_name;
+        joint_msg.position = joint_pos;
+        joint_state_pub.publish(joint_msg);
 
         ros::spinOnce();
         r.sleep();

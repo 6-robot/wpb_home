@@ -7,13 +7,13 @@
   <param name="robot_description" command="$(find xacro)/xacro.py $(arg model)" />
   <param name="use_gui" value="$(arg gui)"/>
 
-  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
   <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher" />
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true" />
 
   <!-- wpb_home core-->
   <node pkg="wpb_home_bringup" type="wpb_home_core" name="wpb_home_core" output="screen">
     <param name="serial_port" type="string" value="/dev/ftdi"/> 
+    <rosparam file="$(find wpb_home_bringup)/config/wpb_home.yaml" command="load" />
   </node>
 
    <!-- js node -->

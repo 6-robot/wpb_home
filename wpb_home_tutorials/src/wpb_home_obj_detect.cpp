@@ -110,7 +110,11 @@ void ProcCloudCB(const sensor_msgs::PointCloud2 &input)
     //ROS_WARN("ProcCloudCB");
     //to footprint
     sensor_msgs::PointCloud2 pc_footprint;
-    tf_listener->waitForTransform("/base_footprint", input.header.frame_id, input.header.stamp, ros::Duration(5.0));  //return value always  false!
+    bool res = tf_listener->waitForTransform("/base_footprint", input.header.frame_id, input.header.stamp, ros::Duration(5.0)); 
+    if(res == false)
+    {
+        return;
+    }
     pcl_ros::transformPointCloud("/base_footprint", input, pc_footprint, *tf_listener);
 
     //source cloud

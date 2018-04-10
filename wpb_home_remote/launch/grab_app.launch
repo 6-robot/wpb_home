@@ -1,0 +1,7 @@
+<launch>
+
+    <!-- Run grab server -->
+    <include file="$(find wpb_home_behaviors)/launch/grab_app.launch" />
+
+
+</launch>

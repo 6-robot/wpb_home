@@ -268,3 +268,28 @@ add_dependencies(wpb_home_speak ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXP
 target_link_libraries(wpb_home_speak
   ${catkin_LIBRARIES}
 )
+
+
+add_executable(wpb_home_imu_turn
+  src/wpb_home_imu_turn.cpp
+)
+add_dependencies(wpb_home_imu_turn ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(wpb_home_imu_turn
+  ${catkin_LIBRARIES}
+)
+
+add_executable(wpb_home_mani_ctrl
+  src/wpb_home_mani_ctrl.cpp
+)
+add_dependencies(wpb_home_mani_ctrl ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(wpb_home_mani_ctrl
+  ${catkin_LIBRARIES}
+)
+
+add_executable(wpb_home_grab_client
+  src/wpb_home_grab_client.cpp
+)
+add_dependencies(wpb_home_grab_client ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(wpb_home_grab_client
+  ${catkin_LIBRARIES}
+)

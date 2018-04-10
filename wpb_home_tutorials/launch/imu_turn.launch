@@ -1,0 +1,13 @@
+<launch>
+
+  <!-- wpb_home core-->
+  <node pkg="wpb_home_bringup" type="wpb_home_core" name="wpb_home_core" >
+    <param name="serial_port" type="string" value="/dev/ftdi"/> 
+    <param name="imu_odom" type="bool" value="true"/>
+    <rosparam file="$(find wpb_home_bringup)/config/wpb_home.yaml" command="load" />
+  </node>
+
+  <!-- imu trun-->
+  <node pkg="wpb_home_tutorials" type="wpb_home_imu_turn" name="wpb_home_imu_turn" output="screen"/>
+
+</launch>

@@ -1,6 +1,6 @@
 <launch>
 
-  <arg name="model" default="$(find wpb_home_bringup)/urdf/wpb_home.urdf"/>
+  <arg name="model" default="$(find wpb_home_bringup)/urdf/wpb_home_mani.urdf"/>
   <arg name="gui" default="true" />
   <arg name="rvizconfig" default="$(find wpb_home_tutorials)/rviz/follow.rviz" />
 
@@ -21,6 +21,7 @@
   <!-- Run wpb_home core -->
   <node pkg="wpb_home_bringup" type="wpb_home_core" name="wpb_home_core" output="screen">
     <param name="serial_port" type="string" value="/dev/ftdi"/> 
+    <rosparam file="$(find wpb_home_bringup)/config/wpb_home.yaml" command="load" />
   </node>
 
   <!--- Run Rplidar -->
@@ -48,9 +49,9 @@
   <arg name="use_png"           default="false"/>
   <arg name="jpeg_quality"      default="90"/>
   <arg name="png_level"         default="1"/>
-  <arg name="depth_method"      default="default"/>
+  <arg name="depth_method"      default="cpu"/>
   <arg name="depth_device"      default="-1"/>
-  <arg name="reg_method"        default="default"/>
+  <arg name="reg_method"        default="cpu"/>
   <arg name="reg_device"        default="-1"/>
   <arg name="max_depth"         default="12.0"/>
   <arg name="min_depth"         default="0.1"/>

@@ -98,7 +98,7 @@
     <parent link="base_link"/>
     <child link="kinect2_dock"/>
     <limit effort="1000.0" lower="0" upper="1.7" velocity="0.5"/>
-    <origin xyz="0.174 0 0" rpy="0 -1.5707963 0"/>
+    <origin xyz="0.145 -0.013 0" rpy="0 -1.5707963 0"/>
   </joint>
 
 <link name = "kinect2_ir_optical_frame">

@@ -47,15 +47,22 @@ public:
 	void Velocity(float inX, float inY, float inAngular);
 	void SendMotors(int inMotor1, int inMotor2, int inMotor3, int inMotor4);
 	float GetYaw();
-	void ManiCtrl(float inHeight, int inRaiseSpeed, float inGripper, int inGripperSpeed);
+	void ManiPos(float inHeight, int inRaiseSpeed, float inGripper, int inGripperSpeed);
+	void ManiCmd(float inManiLift, float inLiftSpeed, float inManiGripper, float inGripperSpeed);
+	bool ManiArrived();
 	float fLinearAccLimit;
 	float fAngularAccLimit;
+
+	float arManiGripperValue[6];
+	float arManiGripperPos[6];
+	int nLastCmdLiftPos;
+	int nLastCmdGripperPos;
 
 	int arValIOInput[4];
 	int arValIOOutput[8];
 	int arValAD[15];
-	int arMotorCurrent[4];
-	int arMotorPos[4];
+	int arMotorCurrent[10];
+	int arMotorPos[10];
 	int nParseCount;
 
 	float fQuatW;

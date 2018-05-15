@@ -109,7 +109,7 @@ catkin_package(
   CATKIN_DEPENDS message_runtime
 #  DEPENDS system_lib
 )
-include_directories(include ${PCL_INCLUDE_DIRS})
+include_directories(include ${PCL_INCLUDE_DIRS} ${catkin_INCLUDE_DIRS})
 link_directories(${PCL_LIBRARY_DIRS} ./data)
 
 ###########

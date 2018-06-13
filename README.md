@@ -2,11 +2,11 @@
 
 ## 使用步骤
 
-1. 安装ROS.
+1. 安装ROS.  
 (1)indigo/Ubuntu 14.04 [安装步骤](http://wiki.ros.org/indigo/Installation/Ubuntu)  
 (2)kinetic/Ubuntu 16.04 [安装步骤](http://wiki.ros.org/kinetic/Installation/Ubuntu)
 2. 配置好开发环境. [配置方法](http://wiki.ros.org/ROS/Tutorials/InstallingandConfiguringROSEnvironment)
-3. 安装依赖项:
+3. 安装依赖项:  
 (1) indigo/Ubuntu 14.04
 ```
 sudo apt-get install ros-indigo-joy

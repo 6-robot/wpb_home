@@ -50,6 +50,7 @@ int main(int argc, char** argv)
         sound_play::SoundRequest sp;
         sp.sound = sound_play::SoundRequest::SAY;
         sp.command = sound_play::SoundRequest::PLAY_ONCE;
+        //sp.volume = 1.0;      //在kinetic版本ROS(Ubuntu16.04)中,需要这句赋值才能发声
         sp.arg = "hello world";
         tts_pub.publish(sp);
         ros::spinOnce();

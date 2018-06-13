@@ -23,7 +23,7 @@ sudo apt-get install ros-indigo-audio-common
 sudo apt-get install libasound2
 sudo apt-get install ros-indigo-sound-play
 ```
-(2)kinetic/Ubuntu 16.04
+  (2)kinetic/Ubuntu 16.04
 ```
 sudo apt-get install ros-kinetic-joy
 sudo apt-get install ros-kinetic-hector-mapping

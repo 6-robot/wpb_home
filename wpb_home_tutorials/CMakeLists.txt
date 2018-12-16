@@ -245,6 +245,14 @@ target_link_libraries(wpb_home_speech_recognition
   ${catkin_LIBRARIES}
 )
 
+add_executable(wpb_home_sr_xfyun
+  src/wpb_home_sr_xfyun.cpp
+)
+add_dependencies(wpb_home_sr_xfyun ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(wpb_home_sr_xfyun
+  ${catkin_LIBRARIES}
+)
+
 add_executable(wpb_home_velocity_control
   src/wpb_home_velocity_control.cpp
 )

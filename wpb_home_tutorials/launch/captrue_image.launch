@@ -1,17 +1,26 @@
 <launch>
-  <arg name="model" default="$(find wpb_home_bringup)/urdf/wpb_home.urdf"/>
-  <arg name="gui" default="true" />
-  <arg name="rvizconfig" default="$(find wpb_home_tutorials)/rviz/face_detect.rviz" />
 
-  <param name="robot_description" command="$(find xacro)/xacro.py $(arg model)" />
-  <param name="use_gui" value="$(arg gui)"/>
-  <param name="/use_sim_time" value="false"/>
-
-  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
-  <rosparam command="load" file="$(find wpb_home_bringup)/config/wpb_home.yaml" />
+  <!-- wpb_home core-->
+  <node pkg="wpb_home_bringup" type="wpb_home_core" name="wpb_home_core" output="screen">
+    <param name="serial_port" type="string" value="/dev/ftdi"/> 
+    <rosparam file="$(find wpb_home_bringup)/config/wpb_home.yaml" command="load" />
   </node>
-  <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher" />
-  <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true" />
+
+  <!-- js node -->
+  <node respawn="true" pkg="joy" type="joy_node" name="wpb_home_joy" >
+    <param name="dev" type="string" value="/dev/input/js0" />
+    <param name="deadzone" value="0.12" />
+  </node>
+
+  <!-- axes velcmd -->
+  <param name="axis_linear" value="1" type="int"/>
+  <param name="axis_angular" value="0" type="int"/>
+  <param name="scale_linear" value="1" type="double"/>
+  <param name="scale_angular" value="1" type="double"/>
+  <node pkg="wpb_home_bringup" type="wpb_home_js_vel" name="teleop"/>
+
+  <!-- capture image -->
+  <node pkg="wpb_home_tutorials" type="wpb_home_capture_image" name="wpb_home_capture_image" output="screen"/>
 
   <!--************************ kinect ************************-->
   <arg name="base_name"         default="kinect2"/>
@@ -95,21 +104,8 @@
     <param name="worker_threads"    type="int"    value="$(arg worker_threads)"/>
   </node>
 
-   <!-- hd point cloud (1920 x 1080) -->
-  <node pkg="nodelet" type="nodelet" name="$(arg base_name)_points_xyzrgb_hd" machine="$(arg machine)"
-        args="load depth_image_proc/point_cloud_xyzrgb $(arg nodelet_manager)" respawn="$(arg respawn)">
-    <remap from="rgb/camera_info"             to="$(arg base_name)/hd/camera_info"/>
-    <remap from="rgb/image_rect_color"        to="$(arg base_name)/hd/image_color_rect"/>
-    <remap from="depth_registered/image_rect" to="$(arg base_name)/hd/image_depth_rect"/>
-    <remap from="depth_registered/points"     to="$(arg base_name)/hd/points"/>
-    <param name="queue_size" type="int" value="$(arg queue_size)"/>
-  </node>
+ 
   <!--************************ end ************************-->
 
-  <arg name="face_cascade_file" default="$(find wpb_home_tutorials)/config/haarcascade_frontalface_alt.xml" />
-
-  <node name="face" pkg="wpb_home_tutorials" type="wpb_home_face_detect" output="screen">
-    <param name="face_cascade_name" value="$(arg face_cascade_file)"/>
-  </node>
 
 </launch>

@@ -301,3 +301,27 @@ add_dependencies(wpb_home_grab_client ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catk
 target_link_libraries(wpb_home_grab_client
   ${catkin_LIBRARIES}
 )
+
+add_executable(wpb_home_capture_image
+  src/wpb_home_capture_image.cpp
+)
+add_dependencies(wpb_home_capture_image ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(wpb_home_capture_image
+  ${catkin_LIBRARIES}
+)
+
+add_executable(wpb_home_lidar_data
+  src/wpb_home_lidar_data.cpp
+)
+add_dependencies(wpb_home_lidar_data ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(wpb_home_lidar_data
+  ${catkin_LIBRARIES}
+)
+
+add_executable(wpb_home_lidar_behavior
+  src/wpb_home_lidar_behavior.cpp
+)
+add_dependencies(wpb_home_lidar_behavior ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(wpb_home_lidar_behavior
+  ${catkin_LIBRARIES}
+)

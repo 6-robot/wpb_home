@@ -42,7 +42,7 @@
   </node>
 
   <!-- RViz and TF tree -->
-  <arg name="model" default="$(find wpb_home_bringup)/urdf/wpb_home_mani.urdf"/>
+  <arg name="model" default="$(find wpb_home_bringup)/urdf/wpb_home.urdf"/>
   <arg name="gui" default="true" />
   <arg name="rvizconfig" default="$(find wpb_home_tutorials)/rviz/nav.rviz" />
 

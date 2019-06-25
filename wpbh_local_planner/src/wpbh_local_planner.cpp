@@ -38,9 +38,13 @@
 #include <wpbh_local_planner/wpbh_local_planner.h>
 #include <tf_conversions/tf_eigen.h>
 #include <pluginlib/class_list_macros.h>
+#include <wpbh_local_planner/CLidarAC.h>
 
 // register this planner as a WpbhLocalPlanner plugin
 PLUGINLIB_DECLARE_CLASS(wpbh_local_planner, WpbhLocalPlanner, wpbh_local_planner::WpbhLocalPlanner, nav_core::BaseLocalPlanner)
+
+static CLidarAC lidar_ac;
+static int ranges[360];
 
 namespace wpbh_local_planner
 {
@@ -100,63 +104,9 @@ namespace wpbh_local_planner
     void WpbhLocalPlanner::lidarCallback(const sensor_msgs::LaserScan::ConstPtr& scan)
     {
         //ROS_INFO("WpbhLocalPlanner::lidarCallback");
-        float left_obst = 1.0;
-        float right_obst = 1.0;
-
-        int nRanges = scan->ranges.size();
-        float range_max = scan->range_max;
-        float range_min = scan->range_min;
-        float ac_width = 0.20;
-        float ac_dist = 0.45;
-
-        //right front
-        for(int i=90;i<180;i++)
+        for(int i=0;i<360;i++)
         {
-             if(scan->ranges[i] < range_min || scan->ranges[i] > range_max)
-                continue;
-            float dist = scan->ranges[i] * sin((i-90)*fScaleD2R);
-            if(dist < ac_dist)
-            {
-                float width = scan->ranges[i] * cos((i-90)*fScaleD2R);
-                if(width < right_obst)
-                {
-                    right_obst = width;
-                }
-            }
-        }
-
-        //left front
-        for(int i=180;i<270;i++)
-        {
-             if(scan->ranges[i] < range_min || scan->ranges[i] > range_max)
-                continue;
-            float dist = scan->ranges[i] * sin((270-i)*fScaleD2R);
-            if(dist < ac_dist)
-            {
-                float width = scan->ranges[i] * cos((270-i)*fScaleD2R);
-                if(width < left_obst)
-                {
-                    left_obst = width;
-                }
-            }
-        }
-
-        // ajust
-        if(right_obst > ac_width && left_obst > ac_width)
-        {
-            m_bAC = false;
-        }
-        else
-        {
-            m_bAC = true;
-            if(right_obst < left_obst)
-            {
-                //m_nAC_action = AC_TURN_LEFT;
-            }
-            else
-            {
-                //m_nAC_action = AC_TURN_RIGHT;
-            }
+            ranges[i] = scan->ranges[i]*100;
         }
     }
 
@@ -167,6 +117,11 @@ namespace wpbh_local_planner
         {
             ROS_ERROR("wpbh_local_planner has not been initialized, please call initialize() before using this planner");
             return false;
+        }
+
+        for(int i=0;i<360;i++)
+        {
+            ranges[i] = 0;
         }
 
         m_global_plan.clear();
@@ -256,6 +211,7 @@ namespace wpbh_local_planner
         cmd_vel.linear.x = 0;
         cmd_vel.linear.y = 0;
         cmd_vel.angular.z = 0;
+        bool res = true;
 
         /////////////////////////////////////////////////
         if(m_bFirstStep == true)
@@ -353,21 +309,17 @@ namespace wpbh_local_planner
                     cmd_vel.linear.x = target_dist*cos(face_target) * m_acc_scale_trans;
                     cmd_vel.linear.y = target_dist*sin(face_target) * m_acc_scale_trans;
                     cmd_vel.angular.z = face_target * m_acc_scale_rot;
+                    ///////////////////
+                    // lidar_ac.SetRanges(ranges);
+		            // res = lidar_ac.OutLine();
+                    // cmd_vel.linear.x += lidar_ac.fVx;
+                    // cmd_vel.linear.y += lidar_ac.fVy;
+                    ///////////////////
                     if(cmd_vel.linear.x > 0) cmd_vel.linear.x+=0.05;
                     if(cmd_vel.linear.x < 0) cmd_vel.linear.x-=0.05;
                     if(cmd_vel.linear.y > 0) cmd_vel.linear.y+=0.02;
                     if(cmd_vel.linear.y < 0) cmd_vel.linear.y-=0.02;
 
-                    // cmd_vel.linear.x = 0;
-                    // cmd_vel.linear.y = 0;
-                    if(m_bAC == true)
-                    {
-                        m_bAC = false;
-                        cmd_vel.linear.x = 0;
-                        cmd_vel.linear.y = 0;
-                        cmd_vel.angular.z = 0;
-                        return m_bAC;
-                    }
                 }
                 m_pub_target.publish(m_global_plan[m_nPathIndex]);
             }
@@ -399,7 +351,7 @@ namespace wpbh_local_planner
 
         m_last_cmd = cmd_vel;
         
-        return true;
+        return res;
     }
 
 

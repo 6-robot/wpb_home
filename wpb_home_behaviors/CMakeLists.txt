@@ -53,11 +53,10 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   Message1.msg
-#   Message2.msg
-# )
+add_message_files(
+  FILES
+  Coord.msg
+ )
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -111,7 +110,7 @@ generate_messages(
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES wpb_home_behaviors
- CATKIN_DEPENDS message_runtime
+ CATKIN_DEPENDS roscpp std_msgs message_runtime
 #  DEPENDS system_lib
 )
 
@@ -220,5 +219,22 @@ add_executable(wpb_home_pass_server
 )
 add_dependencies(wpb_home_pass_server ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(wpb_home_pass_server
+  ${catkin_LIBRARIES}
+)
+
+
+add_executable(wpb_home_objects_3d
+  src/wpb_home_objects_3d.cpp
+)
+add_dependencies(wpb_home_objects_3d ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(wpb_home_objects_3d
+  ${catkin_LIBRARIES}
+)
+
+add_executable(wpb_home_grab_action
+  src/wpb_home_grab_action.cpp
+)
+add_dependencies(wpb_home_grab_action ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(wpb_home_grab_action
   ${catkin_LIBRARIES}
 )

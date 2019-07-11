@@ -333,3 +333,27 @@ add_dependencies(wpb_home_grab_object ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catk
 target_link_libraries(wpb_home_grab_object
   ${catkin_LIBRARIES}
 )
+
+add_executable(wpb_home_image_node
+  src/wpb_home_image_node.cpp
+)
+add_dependencies(wpb_home_image_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(wpb_home_image_node
+  ${catkin_LIBRARIES}
+)
+
+add_executable(wpb_home_pointcloud_node
+  src/wpb_home_pointcloud_node.cpp
+)
+add_dependencies(wpb_home_pointcloud_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(wpb_home_pointcloud_node
+  ${catkin_LIBRARIES}
+)
+
+add_executable(wpb_home_behavior_node
+  src/wpb_home_behavior_node.cpp
+)
+add_dependencies(wpb_home_behavior_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(wpb_home_behavior_node
+  ${catkin_LIBRARIES}
+)

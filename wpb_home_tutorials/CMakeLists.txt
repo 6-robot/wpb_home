@@ -357,3 +357,19 @@ add_dependencies(wpb_home_behavior_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${ca
 target_link_libraries(wpb_home_behavior_node
   ${catkin_LIBRARIES}
 )
+
+add_executable(wpb_home_obj_node
+  src/wpb_home_obj_node.cpp
+)
+add_dependencies(wpb_home_obj_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(wpb_home_obj_node
+  ${catkin_LIBRARIES}
+)
+
+add_executable(wpb_home_grab_node
+  src/wpb_home_grab_node.cpp
+)
+add_dependencies(wpb_home_grab_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(wpb_home_grab_node
+  ${catkin_LIBRARIES}
+)

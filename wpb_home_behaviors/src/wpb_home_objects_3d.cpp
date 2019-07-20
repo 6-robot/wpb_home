@@ -153,7 +153,7 @@ void ProcCloudCB(const sensor_msgs::PointCloud2 &input)
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_f (new pcl::PointCloud<pcl::PointXYZRGB>);
     int i = 0, nr_points = (int) cloud_source_ptr->points.size ();
     // While 30% of the original cloud is still there
-    while (cloud_source_ptr->points.size () > 0.03 * nr_points)
+    while (cloud_source_ptr->points.size () > 0.3 * nr_points)
     {
         // Segment the largest planar component from the remaining cloud
         segmentation.setInputCloud (cloud_source_ptr);
@@ -170,9 +170,12 @@ void ProcCloudCB(const sensor_msgs::PointCloud2 &input)
         extract.setNegative (false);
         extract.filter (*plane);
         float plane_height = plane->points[0].z;
-        ROS_WARN("%d - plana: %d points. height =%.2f" ,i, plane->width * plane->height,plane_height);
+        ROS_INFO("%d - plana: %d points. height =%.2f" ,i, plane->width * plane->height,plane_height);
         if(plane_height > 0.6 && plane_height < 0.85) 
-        break;
+        {
+            ROS_WARN("Final plane: %d points. height =%.2f" , plane->width * plane->height,plane_height);
+            break;
+        }
 
         // Create the filtering object
         extract.setNegative (true);
@@ -180,6 +183,7 @@ void ProcCloudCB(const sensor_msgs::PointCloud2 &input)
         cloud_source_ptr.swap (cloud_f);
         i++;
     }
+    
 
     if (planeIndices->indices.size() == 0)
         std::cout << "Could not find a plane in the scene." << std::endl;
@@ -219,7 +223,7 @@ void ProcCloudCB(const sensor_msgs::PointCloud2 &input)
             pcl::EuclideanClusterExtraction<pcl::PointXYZRGB> ec;
             std::vector<pcl::PointIndices> cluster_indices;
             ec.setClusterTolerance (0.05);
-            ec.setMinClusterSize (800);
+            ec.setMinClusterSize (500);
             ec.setMaxClusterSize (10000000);
             ec.setSearchMethod (tree);
             ec.setInputCloud (objects);
@@ -269,8 +273,8 @@ void ProcCloudCB(const sensor_msgs::PointCloud2 &input)
                     std::string obj_id = stringStream.str();
                     float object_x = boxMarker.xMax;
                     float object_y = (boxMarker.yMin+boxMarker.yMax)/2;
-                    float object_z = boxMarker.zMin + 0.04;
-                    DrawText(obj_id,0.08, object_x,object_y,object_z, 1,0,1);
+                    float object_z = boxMarker.zMin + 0.2;
+                    DrawText(obj_id,0.06, object_x,object_y,object_z, 1,0,1);
                     tmpObj.name = obj_id;
                     tmpObj.x = object_x;
                     tmpObj.y = object_y;

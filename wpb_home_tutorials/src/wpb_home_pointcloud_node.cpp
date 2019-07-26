@@ -45,12 +45,14 @@ void callbackPC(const sensor_msgs::PointCloud2ConstPtr& msg)
     pcl::fromROSMsg(*msg , pointCloudIn);
 
     int cloudSize = pointCloudIn.points.size();
-    int pcIndex = cloudSize/2;
-    ROS_INFO("[pcIndex= %d] ( %.2f , %.2f , %.2f)", 
-        pcIndex , 
-        pointCloudIn.points[pcIndex].x, 
-        pointCloudIn.points[pcIndex].y, 
-        pointCloudIn.points[pcIndex].z);
+    for(int i=0;i<cloudSize;i++)
+    {
+        ROS_INFO("[i= %d] ( %.2f , %.2f , %.2f)", 
+            i , 
+            pointCloudIn.points[i].x, 
+            pointCloudIn.points[i].y, 
+            pointCloudIn.points[i].z);
+    }
 }
 
 int main(int argc, char **argv)

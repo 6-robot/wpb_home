@@ -45,7 +45,7 @@ void ObjCoordCB(const wpb_home_behaviors::Coord::ConstPtr &msg)
     {
         for(int i=0 ; i<nNumObj ; i++)
         {
-            ROS_WARN("[ObjCoordCB] %s - (%.2f , %.2f , %.2f)",msg->name[0].c_str(),msg->x[0],msg->y[0],msg->z[0]);
+            ROS_WARN("[ObjCoordCB] %s - (%.2f , %.2f , %.2f)",msg->name[i].c_str(),msg->x[i],msg->y[i],msg->z[i]);
         }
         
     }

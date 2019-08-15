@@ -273,7 +273,7 @@ void ProcCloudCB(const sensor_msgs::PointCloud2 &input)
                     std::string obj_id = stringStream.str();
                     float object_x = boxMarker.xMax;
                     float object_y = (boxMarker.yMin+boxMarker.yMax)/2;
-                    float object_z = boxMarker.zMin + 0.2;
+                    float object_z = boxMarker.zMin;
                     DrawText(obj_id,0.06, object_x,object_y,object_z, 1,0,1);
                     tmpObj.name = obj_id;
                     tmpObj.x = object_x;

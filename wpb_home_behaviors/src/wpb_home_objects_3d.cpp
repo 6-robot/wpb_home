@@ -44,6 +44,7 @@
 #include <pcl/sample_consensus/model_types.h>
 #include <pcl/segmentation/sac_segmentation.h>
 #include <pcl/filters/extract_indices.h>
+#include <pcl/filters/passthrough.h>
 #include <pcl/surface/convex_hull.h>
 #include <pcl/segmentation/extract_polygonal_prism_data.h>
 #include <pcl/visualization/cloud_viewer.h>
@@ -130,6 +131,18 @@ void ProcCloudCB(const sensor_msgs::PointCloud2 &input)
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_source_ptr;
     cloud_source_ptr = cloud_src.makeShared(); 
 
+    pcl::PassThrough<pcl::PointXYZRGB> pass;//设置滤波器对象
+    pass.setInputCloud (cloud_source_ptr);
+    pass.setFilterFieldName ("z");
+    pass.setFilterLimits (0.3, 1.5);
+    pass.filter (*cloud_source_ptr);
+    pass.setFilterFieldName ("x");
+    pass.setFilterLimits (0.0, 1.5);
+    pass.filter (*cloud_source_ptr);
+    pass.setFilterFieldName ("y");
+    pass.setFilterLimits (-1.5, 1.5);
+    pass.filter (*cloud_source_ptr);
+
     //process
     //printf ("Cloud: width = %d, height = %d\n", msg->width, msg->height);
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr plane(new pcl::PointCloud<pcl::PointXYZRGB>);
@@ -144,6 +157,9 @@ void ProcCloudCB(const sensor_msgs::PointCloud2 &input)
     segmentation.setMethodType(pcl::SAC_RANSAC);
     segmentation.setDistanceThreshold(0.005);
     segmentation.setOptimizeCoefficients(true);
+    Eigen::Vector3f axis = Eigen::Vector3f(0.0,1.0,0.0);
+    segmentation.setAxis(axis);
+    segmentation.setEpsAngle(  10.0f * (M_PI/180.0f) );
     pcl::PointIndices::Ptr planeIndices(new pcl::PointIndices);
     segmentation.segment(*planeIndices, *coefficients);
     ROS_INFO_STREAM("Planes: " << planeIndices->indices.size());
@@ -208,7 +224,7 @@ void ProcCloudCB(const sensor_msgs::PointCloud2 &input)
             pcl::ExtractPolygonalPrismData<pcl::PointXYZRGB> prism;
             prism.setInputCloud(cloud_source_ptr);
             prism.setInputPlanarHull(convexHull);
-            prism.setHeightLimits(-0.30, -0.05); //height limit objects lying on the plane
+            prism.setHeightLimits(-0.30, -0.03); //height limit objects lying on the plane
             pcl::PointIndices::Ptr objectIndices(new pcl::PointIndices);
 
             // Get and show all points retrieved by the hull.
@@ -443,7 +459,7 @@ int main(int argc, char **argv)
     tf_listener = new tf::TransformListener(); 
 
     ros::NodeHandle nh_param("~");
-    nh_param.param<std::string>("topic", pc_topic, "/kinect2/sd/points");
+    nh_param.param<std::string>("topic", pc_topic, "/kinect2/qhd/points");
 
     ros::NodeHandle nh;
     ros::Subscriber pc_sub = nh.subscribe(pc_topic, 10 , ProcCloudCB);

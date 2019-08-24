@@ -1,6 +1,6 @@
 zeros:
  kinect_height: 1.37
- kinect_pitch: -0.70
+ kinect_pitch: -0.50
 
 grab:
  grab_y_offset: 0.0         #抓取前，对准物品，机器人的横向位移偏移量。大-往左修正；小-往右修正

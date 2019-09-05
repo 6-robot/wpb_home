@@ -15,6 +15,8 @@ find_package(catkin REQUIRED COMPONENTS
     pluginlib
     tf
 )
+
+find_package(OpenCV REQUIRED)
  
 catkin_package(
   INCLUDE_DIRS include
@@ -33,9 +35,12 @@ catkin_package(
   DEPENDS
 )
 
+
 include_directories(
   include ${catkin_INCLUDE_DIRS}
 )
+
+link_directories(./data)
 
 install(FILES
   wpbh_local_planner_plugin.xml
@@ -45,10 +50,11 @@ install(FILES
 add_library(wpbh_local_planner
   include/wpbh_local_planner/wpbh_local_planner.h
   include/wpbh_local_planner/CLidarAC.h
+  include/wpbh_local_planner/wl_helper.h
   src/wpbh_local_planner.cpp
   src/CLidarAC.cpp
 )
 add_dependencies(wpbh_local_planner ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(wpbh_local_planner
-  ${catkin_LIBRARIES}
+  ${catkin_LIBRARIES}  -lwl_helper
 )

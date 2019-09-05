@@ -10,7 +10,7 @@ class CLidarAC
 public:
 	CLidarAC();
 	virtual ~CLidarAC();
-	void SetRanges(int* inData);
+	void SetRanges(float* inData);
 	bool OutLine();
 	int GetMinIndex(int inBeginIndex, int inEndIndex);
 	vector<int> arBlobIndex;

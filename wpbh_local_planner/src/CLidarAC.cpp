@@ -50,7 +50,7 @@ int CLidarAC::GetMinIndex(int inBeginIndex, int inEndIndex)
     return res;
 }
 
-void CLidarAC::SetRanges(int* inData)
+void CLidarAC::SetRanges(float* inData)
 {
     for(int i=0;i<180;i++)
     {

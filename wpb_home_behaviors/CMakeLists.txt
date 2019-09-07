@@ -56,6 +56,7 @@ find_package(catkin REQUIRED COMPONENTS
 add_message_files(
   FILES
   Coord.msg
+  Rect.msg
  )
 
 ## Generate services in the 'srv' folder
@@ -222,7 +223,6 @@ target_link_libraries(wpb_home_pass_server
   ${catkin_LIBRARIES}
 )
 
-
 add_executable(wpb_home_objects_3d
   src/wpb_home_objects_3d.cpp
 )
@@ -236,5 +236,13 @@ add_executable(wpb_home_grab_action
 )
 add_dependencies(wpb_home_grab_action ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(wpb_home_grab_action
+  ${catkin_LIBRARIES}
+)
+
+add_executable(wpb_home_face_detect_3d
+  src/wpb_home_face_detect_3d.cpp
+)
+add_dependencies(wpb_home_face_detect_3d ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(wpb_home_face_detect_3d
   ${catkin_LIBRARIES}
 )

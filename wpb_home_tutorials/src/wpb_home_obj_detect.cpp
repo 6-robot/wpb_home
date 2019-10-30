@@ -147,11 +147,11 @@ void ProcCloudCB(const sensor_msgs::PointCloud2 &input)
     pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients);
     pcl::SACSegmentation<pcl::PointXYZRGB> segmentation;
     segmentation.setInputCloud(cloud_source_ptr);
-    segmentation.setModelType(pcl::SACMODEL_PLANE);
+    segmentation.setModelType(pcl::SACMODEL_PERPENDICULAR_PLANE);
     segmentation.setMethodType(pcl::SAC_RANSAC);
     segmentation.setDistanceThreshold(0.005);
     segmentation.setOptimizeCoefficients(true);
-    Eigen::Vector3f axis = Eigen::Vector3f(0.0,1.0,0.0);
+    Eigen::Vector3f axis = Eigen::Vector3f(0.0,0.0,1.0);
     segmentation.setAxis(axis);
     segmentation.setEpsAngle(  10.0f * (M_PI/180.0f) );
     pcl::PointIndices::Ptr planeIndices(new pcl::PointIndices);

@@ -156,6 +156,7 @@ static float fTargetGrabY = 0.0;        //抓取时目标物品的y坐标
 static std::vector<stBoxMarker> vObj;        
 static stBoxMarker boxLastObject;
 static int nObjDetectCounter = 0;
+static int nTimeOut = 0;
 
 void ProcCloudCB(const sensor_msgs::PointCloud2 &input)
 {
@@ -281,7 +282,12 @@ void ProcCloudCB(const sensor_msgs::PointCloud2 &input)
         }
 
         if (planeIndices->indices.size() == 0)
+        {
             std::cout << "Could not find a plane in the scene." << std::endl;
+            nTimeOut ++;
+            if(nTimeOut > 10)
+                nStep = STEP_DONE;
+        }
         else
         {
             // Copy the points of the plane to a new cloud.
@@ -433,6 +439,9 @@ void ProcCloudCB(const sensor_msgs::PointCloud2 &input)
                     {
                         nObjDetectCounter = 0;
                         ROS_WARN("[FIND_OBJ] nObjCnt <= 0 No object detected ...");
+                        nTimeOut ++;
+                        if(nTimeOut > 10)
+                            nStep = STEP_DONE;
                     }
                 }
                 else
@@ -628,6 +637,8 @@ void ProcCloudCB(const sensor_msgs::PointCloud2 &input)
     {
         result_msg.data = "done";
         result_pub.publish(result_msg);
+        nTimeOut = 0;
+        nStep = STEP_WAIT;
     }
 }
 
@@ -745,6 +756,7 @@ void BehaviorCB(const std_msgs::String::ConstPtr &msg)
     nFindIndex = msg->data.find("grab start");
     if( nFindIndex >= 0 )
     {
+        nTimeOut = 0;
         VelCmd(0,0,0);
         nStep = STEP_FIND_PLANE;
         ROS_WARN("[grab_start] ");
@@ -754,6 +766,7 @@ void BehaviorCB(const std_msgs::String::ConstPtr &msg)
     if( nFindIndex >= 0 )
     {
         ROS_WARN("[grab_stop] ");
+        nTimeOut = 0;
         nStep = STEP_WAIT;
         geometry_msgs::Twist vel_cmd;
         vel_cmd.linear.x = 0;

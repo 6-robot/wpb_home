@@ -266,6 +266,7 @@ int main(int argc, char** argv)
                 odom_trans.header.stamp = ros::Time::now();
                 //plublishing the odometry and new tf
                 broadcaster.sendTransform(odom_trans);
+                odom.header.stamp = ros::Time::now();
                 odom_pub.publish(odom);
                 //ROS_INFO("[odom] zero");
             }

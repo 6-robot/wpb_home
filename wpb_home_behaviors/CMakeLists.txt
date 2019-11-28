@@ -246,3 +246,11 @@ add_dependencies(wpb_home_face_detect_3d ${${PROJECT_NAME}_EXPORTED_TARGETS} ${c
 target_link_libraries(wpb_home_face_detect_3d
   ${catkin_LIBRARIES}
 )
+
+add_executable(wpb_home_place_action
+  src/wpb_home_place_action.cpp
+)
+add_dependencies(wpb_home_place_action ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(wpb_home_place_action
+  ${catkin_LIBRARIES}
+)

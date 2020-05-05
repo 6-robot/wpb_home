@@ -41,6 +41,7 @@
 #include <geometry_msgs/Twist.h>
 
 ros::Publisher vel_pub;
+static int nCount = 0;
 
 void lidarCallback(const sensor_msgs::LaserScan::ConstPtr& scan)
 {
@@ -50,14 +51,21 @@ void lidarCallback(const sensor_msgs::LaserScan::ConstPtr& scan)
     float fMidDist = scan->ranges[nMid];
     ROS_INFO("Point[%d] = %f", nMid, fMidDist); 
 
+    if(nCount > 0)
+    {
+        nCount--;
+        return;
+    }
+
     geometry_msgs::Twist vel_cmd;
-    if(fMidDist > 1.0f)
+    if(fMidDist > 1.5f)
     {
         vel_cmd.linear.x = 0.05;
     }
     else
     {
-        vel_cmd.angular.z = 0.1;
+        vel_cmd.angular.z = 0.3;
+        nCount = 50;
     }
     vel_pub.publish(vel_cmd);
 }

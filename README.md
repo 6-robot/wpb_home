@@ -3,28 +3,12 @@
 ## 使用步骤
 
 1. 安装ROS.  
-(1)indigo/Ubuntu 14.04 [安装步骤](http://wiki.ros.org/indigo/Installation/Ubuntu)  
-(2)kinetic/Ubuntu 16.04 [安装步骤](http://wiki.ros.org/kinetic/Installation/Ubuntu)
+Kinetic/Ubuntu 16.04 [安装步骤](http://wiki.ros.org/kinetic/Installation/Ubuntu)
 2. 配置好开发环境. [配置方法](http://wiki.ros.org/ROS/Tutorials/InstallingandConfiguringROSEnvironment)
-3. 安装依赖项:  
-(1) indigo/Ubuntu 14.04
+3. 安装依赖项:
+Kinetic/Ubuntu 16.04
 ```
-sudo apt-get install ros-indigo-joy
-sudo apt-get install ros-indigo-hector-mapping
-sudo apt-get install ros-indigo-gmapping 
-sudo apt-get install ros-indigo-map-server
-sudo apt-get install ros-indigo-navigation
-sudo apt-get install ros-indigo-move-base
-sudo apt-get install ros-indigo-amcl
-sudo apt-get install gstreamer0.10-pocketsphinx
-sudo apt-get install gstreamer0.10-gconf
-sudo apt-get install ros-indigo-pocketsphinx
-sudo apt-get install ros-indigo-audio-common
-sudo apt-get install libasound2
-sudo apt-get install ros-indigo-sound-play
-```  
-(2)kinetic/Ubuntu 16.04
-```
+sudo apt-get install ros-kinetic-joint-state-publisher-gui
 sudo apt-get install ros-kinetic-joy
 sudo apt-get install ros-kinetic-hector-mapping
 sudo apt-get install ros-kinetic-gmapping

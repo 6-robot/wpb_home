@@ -7,7 +7,10 @@
   <param name="robot_description" command="$(find xacro)/xacro.py $(arg model)" />
   <param name="use_gui" value="$(arg gui)"/>
 
-  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" >
+  <node if="$(arg gui)" name="joint_state_publisher_gui" pkg="joint_state_publisher_gui" type="joint_state_publisher_gui" >
+    <rosparam command="load" file="$(find wpb_home_bringup)/config/wpb_home.yaml" />
+  </node>
+  <node unless="$(arg gui)" name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" >
     <rosparam command="load" file="$(find wpb_home_bringup)/config/wpb_home.yaml" />
   </node>
   <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher" />

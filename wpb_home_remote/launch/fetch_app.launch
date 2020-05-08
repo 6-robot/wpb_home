@@ -46,7 +46,7 @@
     </node>
 
     <arg name="model" default="$(find wpb_home_bringup)/urdf/wpb_home_mani.urdf"/>
-    <arg name="gui" default="true" />
+    <arg name="gui" default="false" />
 
     <param name="robot_description" command="$(find xacro)/xacro.py $(arg model)" />
     <param name="use_gui" value="$(arg gui)"/>

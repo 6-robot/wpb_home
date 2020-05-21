@@ -51,6 +51,7 @@
 #include <tf/tf.h>
 #include <tf/transform_listener.h>
 #include <tf/transform_datatypes.h>
+#include <tf2_ros/buffer.h>
 
 #define WPBH_STEP_GOTO     1
 #define WPBH_STEP_NEAR     2
@@ -65,6 +66,7 @@ namespace wpbh_local_planner
     ~WpbhLocalPlanner();
 
     void initialize(std::string name, tf::TransformListener* tf, costmap_2d::Costmap2DROS* costmap_ros);
+    void initialize(std::string name, tf2_ros::Buffer* tf, costmap_2d::Costmap2DROS* costmap_ros);
     bool setPlan(const std::vector<geometry_msgs::PoseStamped>& plan);
     bool computeVelocityCommands(geometry_msgs::Twist& cmd_vel);
     bool isGoalReached();

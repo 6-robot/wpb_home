@@ -1,7 +1,7 @@
 obstacle_range: 6.0
 raytrace_range: 6.0
 robot_radius: 0.25
-inflation_radius: 0.40
+inflation_radius: 0.30
 cost_scaling_factor: 10.0
 observation_sources: scan_filtered
 scan_filtered: {

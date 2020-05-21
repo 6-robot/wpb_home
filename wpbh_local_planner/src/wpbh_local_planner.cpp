@@ -42,7 +42,8 @@
 #include <wpbh_local_planner/CLidarAC.h>
 
 // register this planner as a WpbhLocalPlanner plugin
-PLUGINLIB_DECLARE_CLASS(wpbh_local_planner, WpbhLocalPlanner, wpbh_local_planner::WpbhLocalPlanner, nav_core::BaseLocalPlanner)
+//PLUGINLIB_DECLARE_CLASS(wpbh_local_planner, WpbhLocalPlanner, wpbh_local_planner::WpbhLocalPlanner, nav_core::BaseLocalPlanner)
+PLUGINLIB_EXPORT_CLASS( wpbh_local_planner::WpbhLocalPlanner, nav_core::BaseLocalPlanner)
 
 static CLidarAC lidar_ac;
 static float ranges[360];
@@ -63,6 +64,7 @@ namespace wpbh_local_planner
 
     WpbhLocalPlanner::~WpbhLocalPlanner()
     {
+        
     }
 
     void WpbhLocalPlanner::initialize(std::string name, tf::TransformListener* tf, costmap_2d::Costmap2DROS* costmap_ros)
@@ -71,6 +73,44 @@ namespace wpbh_local_planner
         if(!m_bInitialized)
         {	
             m_tf_listener = tf;
+            m_costmap_ros = costmap_ros;
+            m_costmap = m_costmap_ros->getCostmap();
+            
+            m_global_frame_id = m_costmap_ros->getGlobalFrameID();      //"odom"
+            m_robot_base_frame_id = m_costmap_ros->getBaseFrameID();    //"base_footprint"
+            
+            m_footprint_spec = m_costmap_ros->getRobotFootprint();
+            costmap_2d::calculateMinAndMaxDistances(m_footprint_spec, m_robot_inscribed_radius, m_robot_circumscribed_radius); 
+
+            ros::NodeHandle nh_planner("~/" + name);
+            nh_planner.param("max_vel_trans", m_max_vel_trans, 0.3);
+            nh_planner.param("max_vel_rot", m_max_vel_rot, 0.9);
+            nh_planner.param("acc_scale_trans", m_acc_scale_trans, 1.0);
+            nh_planner.param("acc_scale_rot", m_acc_scale_rot, 0.5);
+            nh_planner.param("goal_dist_tolerance", m_goal_dist_tolerance, 0.1);
+            nh_planner.param("goal_yaw_tolerance", m_goal_yaw_tolerance, 0.1);
+            nh_planner.param("scan_topic", m_scan_topic, std::string("/scan"));
+
+            m_pub_target = nh_planner.advertise<geometry_msgs::PoseStamped>("local_planner_target", 10);
+            m_scan_sub = nh_planner.subscribe<sensor_msgs::LaserScan>(m_scan_topic,1,&WpbhLocalPlanner::lidarCallback,this);
+            
+            m_bInitialized = true;
+
+            ROS_DEBUG("wpbh_local_planner plugin initialized.");
+        }
+        else
+        {
+            ROS_WARN("wpbh_local_planner has already been initialized, doing nothing.");
+        }
+    }
+
+    void WpbhLocalPlanner::initialize(std::string name,tf2_ros::Buffer* tf, costmap_2d::Costmap2DROS* costmap_ros)
+    {
+        ROS_WARN("WpbhLocalPlanner::initialize() ");
+        if(!m_bInitialized)
+        {	
+            //m_tf_listener = tf;
+            m_tf_listener = new tf::TransformListener;
             m_costmap_ros = costmap_ros;
             m_costmap = m_costmap_ros->getCostmap();
             

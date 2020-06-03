@@ -8,18 +8,13 @@ Kinetic/Ubuntu 16.04 [安装步骤](http://wiki.ros.org/kinetic/Installation/Ubu
 3. 安装依赖项:
 Kinetic/Ubuntu 16.04
 ```
-sudo apt-get install ros-kinetic-joint-state-publisher-gui
-sudo apt-get install ros-kinetic-joy
-sudo apt-get install ros-kinetic-hector-mapping
-sudo apt-get install ros-kinetic-gmapping
-sudo apt-get install ros-kinetic-map-server
-sudo apt-get install ros-kinetic-navigation
-sudo apt-get install ros-kinetic-move-base
-sudo apt-get install ros-kinetic-amcl
-sudo apt-get install ros-kinetic-cv-bridge
-sudo apt-get install ros-kinetic-audio-common
-sudo apt-get install libasound2
-sudo apt-get install ros-kinetic-sound-play
+cd ~/catkin_ws/src/wpb_home/wpb_home_bringup/scripts
+./install_for_kinetic.sh
+```
+ROS Melodic/Ubuntu 18.04
+```
+cd ~/catkin_ws/src/wpb_home/wpb_home_bringup/scripts
+./install_for_melodic.sh
 ```
 4. 获取源码:
 ```

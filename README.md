@@ -5,7 +5,7 @@
 1. 安装ROS.  
 Kinetic/Ubuntu 16.04 [安装步骤](http://wiki.ros.org/kinetic/Installation/Ubuntu)
 2. 配置好开发环境. [配置方法](http://wiki.ros.org/ROS/Tutorials/InstallingandConfiguringROSEnvironment)
-3. 安装依赖项:
+3. 安装依赖项:  
 Kinetic/Ubuntu 16.04
 ```
 cd ~/catkin_ws/src/wpb_home/wpb_home_bringup/scripts

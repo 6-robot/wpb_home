@@ -580,7 +580,7 @@ void ProcCloudCB(const sensor_msgs::PointCloud2 &input)
         }
         nTimeDelayCounter ++;
         VelCmd(0,0,0);
-        if(nTimeDelayCounter > 200)
+        if(nTimeDelayCounter > 50)
         {
             fMoveTargetX = fObjGrabX -0.55 + grab_forward_offset;
             fMoveTargetY = 0;
@@ -604,7 +604,7 @@ void ProcCloudCB(const sensor_msgs::PointCloud2 &input)
 
         nTimeDelayCounter++;
         VelCmd(0,0,0);
-        if(nTimeDelayCounter > 50)
+        if(nTimeDelayCounter > 30)
         {
             nTimeDelayCounter = 0;
             nStep = STEP_OBJ_UP;
@@ -623,7 +623,7 @@ void ProcCloudCB(const sensor_msgs::PointCloud2 &input)
         }
         nTimeDelayCounter++;
         VelCmd(0,0,0);
-        if(nTimeDelayCounter > 50)
+        if(nTimeDelayCounter > 10)
         {
             fMoveTargetX = -(fTargetGrabX-0.4);
             fMoveTargetY = 0;

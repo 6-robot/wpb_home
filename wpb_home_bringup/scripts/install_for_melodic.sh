@@ -6,3 +6,4 @@ sudo apt-get install ros-melodic-gmapping
 sudo apt-get install ros-melodic-navigation
 sudo apt-get install ros-melodic-cv-bridge
 sudo apt-get install ros-melodic-audio-common
+sudo apt-get install ros-melodic-controller-manager

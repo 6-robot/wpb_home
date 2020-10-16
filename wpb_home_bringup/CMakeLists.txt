@@ -250,3 +250,12 @@ add_dependencies(wpb_home_test_mani ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin
 target_link_libraries(wpb_home_test_mani
   ${catkin_LIBRARIES}
 )
+
+## Declare a C++ executable
+add_executable(wpb_home_calibrate_velocity
+  src/wpb_home_calibrate_velocity.cpp
+)
+add_dependencies(wpb_home_calibrate_velocity ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(wpb_home_calibrate_velocity
+  ${catkin_LIBRARIES}
+)

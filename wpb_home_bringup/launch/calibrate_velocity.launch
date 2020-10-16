@@ -1,0 +1,12 @@
+<launch>
+
+  <!-- wpb_home_core-->
+  <node pkg="wpb_home_bringup" type="wpb_home_core" name="wpb_home_core" >
+    <param name="serial_port" type="string" value="/dev/ftdi"/> 
+    <rosparam file="$(find wpb_home_bringup)/config/wpb_home.yaml" command="load" />
+  </node>
+  
+  <!-- wpb_home_calibrate_velocity -->
+  <node pkg="wpb_home_bringup" type="wpb_home_calibrate_velocity" name="wpb_home_calibrate_velocity" output="screen"/>
+
+</launch>

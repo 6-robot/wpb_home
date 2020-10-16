@@ -209,9 +209,9 @@ int main(int argc, char** argv)
                 fVy = (fPosDiff[0] + fPosDiff[1]) - (fPosDiff[0] + fPosDiff[1] + fPosDiff[2])*fKVy;
                 fVz = (fPosDiff[0] + fPosDiff[1] + fPosDiff[2])*fKVz;
                 double fTimeDur = current_time.toSec() - last_time.toSec();
-                fVx = fVx/(fTimeDur*9700);
-                fVy = fVy/(fTimeDur*9700);
-                fVz = fVz/(fTimeDur*1925);
+                fVx = fVx/(fTimeDur*9100);
+                fVy = fVy/(fTimeDur*9100);
+                fVz = fVz/(fTimeDur*1840);
                 
                 double dx = (lastVel.linear.x*cos(lastPose.theta) - lastVel.linear.y*sin(lastPose.theta))*fTimeDur;
                 double dy = (lastVel.linear.x*sin(lastPose.theta) + lastVel.linear.y*cos(lastPose.theta))*fTimeDur;

@@ -71,8 +71,8 @@ public:
   {
     std::cout << "输入如下指令并回车执行：\n"
       "W - 前进1米 \nS - 后退1米\n"
-      "A  - 左平移1米\nD - 右平移1米 \n"
-      "Q - 逆时针转360度\nE - 顺时针转360度\nX  - 退出\n";
+      "A - 左平移1米\nD - 右平移1米 \n"
+      "Q - 逆时针转360度\nE - 顺时针转360度\nX - 退出\n";
 
     //we will be sending commands of type "twist"
     geometry_msgs::Twist base_cmd;

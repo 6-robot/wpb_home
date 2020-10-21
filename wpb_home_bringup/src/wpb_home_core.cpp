@@ -88,6 +88,11 @@ void CtrlCallback(const std_msgs::String::ConstPtr &msg)
         pose_diff_msg.theta = 0;
         //ROS_WARN("[pose_diff reset]");
     }
+    nFindIndex = msg->data.find("motor encoder");
+    if( nFindIndex >= 0 )
+    {
+        printf("\n[电机码盘位置] 电机1= %d    电机2= %d    电机3= %d\n", m_wpb_home.arMotorPos[0], m_wpb_home.arMotorPos[1], m_wpb_home.arMotorPos[2]);
+    }
 
 }
 

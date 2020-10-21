@@ -160,6 +160,10 @@ public:
       std::cout << "任务完成!\n";
       std::cout << "-------------------------\n";
       printf("**电机码盘里程计**\n前后运动= %.2f 米\n左右平移= %.2f 米\n转动角度= %.2f 度\n",pose_diff.x,pose_diff.y,pose_diff.theta*180/3.1415926);
+     std_msgs::String odom_ctrl_msg;
+      odom_ctrl_msg.data = "motor encoder";
+      odom_ctrl_pub.publish(odom_ctrl_msg);
+      ros::spinOnce();
       std::cout << "-------------------------\n";
       std::cout << "\n";
       std::cout << "输入下一条指令：";

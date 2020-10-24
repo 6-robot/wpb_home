@@ -85,7 +85,7 @@ namespace wpbh_local_planner
             ros::NodeHandle nh_planner("~/" + name);
             nh_planner.param("max_vel_trans", m_max_vel_trans, 0.3);
             nh_planner.param("max_vel_rot", m_max_vel_rot, 0.9);
-            nh_planner.param("acc_scale_trans", m_acc_scale_trans, 1.0);
+            nh_planner.param("acc_scale_trans", m_acc_scale_trans, 1.5);
             nh_planner.param("acc_scale_rot", m_acc_scale_rot, 0.5);
             nh_planner.param("goal_dist_tolerance", m_goal_dist_tolerance, 0.1);
             nh_planner.param("goal_yaw_tolerance", m_goal_yaw_tolerance, 0.1);
@@ -123,7 +123,7 @@ namespace wpbh_local_planner
             ros::NodeHandle nh_planner("~/" + name);
             nh_planner.param("max_vel_trans", m_max_vel_trans, 0.3);
             nh_planner.param("max_vel_rot", m_max_vel_rot, 0.9);
-            nh_planner.param("acc_scale_trans", m_acc_scale_trans, 1.0);
+            nh_planner.param("acc_scale_trans", m_acc_scale_trans, 1.5);
             nh_planner.param("acc_scale_rot", m_acc_scale_rot, 0.5);
             nh_planner.param("goal_dist_tolerance", m_goal_dist_tolerance, 0.1);
             nh_planner.param("goal_yaw_tolerance", m_goal_yaw_tolerance, 0.1);
@@ -308,20 +308,24 @@ namespace wpbh_local_planner
                 ClearObst();
                 SetRanges(ranges);
                 //check if target is near
+                double minDist = 999;
+                int nMinDistIndex = m_nPathIndex;
                 double target_x, target_y, target_th;
-                int path_index = m_nPathIndex;
-                while(m_nPathIndex < path_num-1)
+                //while(m_nPathIndex < path_num-1)
+                for(int i=m_nPathIndex;i<path_num;i++)
                 {
-                    getTransformedPosition(m_global_plan[m_nPathIndex], m_robot_base_frame_id, target_x, target_y, target_th);
-                    if((sqrt(target_x*target_x + target_y*target_y) < m_goal_dist_tolerance) || (ChkTarget(target_y/0.05+50,target_x/0.05+50) == false))
+                    getTransformedPosition(m_global_plan[i], m_robot_base_frame_id, target_x, target_y, target_th);
+                    if( ChkTarget(target_y/0.05+50,target_x/0.05+50) == true)
                     {
-                        m_nPathIndex ++;
-                    }
-                    else
-                    {
-                        break;  //target is far enough
+                        double tmpDist = sqrt(target_x*target_x + target_y*target_y) < m_goal_dist_tolerance;
+                        if(tmpDist < minDist)
+                        {
+                            nMinDistIndex = i;
+                            minDist = tmpDist;
+                        }
                     }
                 }
+                m_nPathIndex = nMinDistIndex;
                 
                 double gpath_x, gpath_y, gpath_th;
                 ClearTarget();
@@ -341,19 +345,21 @@ namespace wpbh_local_planner
                 if(GetHelperNum() > 5 && (path_num - m_nPathIndex) > 1)
                 {
                     target_x = GetFixX();
-                    target_y = GetFixY();;
+                    target_y = GetFixY();
+                    gpath_x = GetFaceX();
+                    gpath_y = GetFaceY();
                 }
                 else
                 {
                     getTransformedPosition(m_global_plan[m_nPathIndex], m_robot_base_frame_id, target_x, target_y, target_th);
+                    getTransformedPosition(m_global_plan[m_nPathIndex], m_robot_base_frame_id, gpath_x, gpath_y, gpath_th);
                 }
- 
-                getTransformedPosition(m_global_plan[m_nPathIndex], m_robot_base_frame_id, gpath_x, gpath_y, gpath_th);
+                // 确定机器人朝向
                 double face_target = CalDirectAngle(0, 0, gpath_x, gpath_y);
                 face_target = AngleFix(face_target,-2.1,2.1);
                 if(fabs(face_target)> 0.8)
                 {
-                    //turn in place
+                    // turn in place
                     cmd_vel.linear.x = 0;
                     cmd_vel.linear.y = 0;
                     cmd_vel.angular.z = face_target * m_acc_scale_rot;
@@ -366,13 +372,13 @@ namespace wpbh_local_planner
                     cmd_vel.linear.x = target_x * m_acc_scale_trans;
                     cmd_vel.linear.y = target_y * m_acc_scale_trans;
                     cmd_vel.angular.z = face_target * m_acc_scale_rot;
-                  
-                    if(cmd_vel.linear.x > 0) cmd_vel.linear.x+=0.05;
-                    if(cmd_vel.linear.x < 0) cmd_vel.linear.x-=0.05;
-                    if(cmd_vel.linear.y > 0) cmd_vel.linear.y+=0.02;
-                    if(cmd_vel.linear.y < 0) cmd_vel.linear.y-=0.02;
-
                 }
+
+                if(cmd_vel.linear.x > 0) cmd_vel.linear.x+=0.05;
+                if(cmd_vel.linear.x < 0) cmd_vel.linear.x-=0.05;
+                if(cmd_vel.linear.y > 0) cmd_vel.linear.y+=0.02;
+                if(cmd_vel.linear.y < 0) cmd_vel.linear.y-=0.02;
+
                 lidar_ac.OutLine();
                 m_pub_target.publish(m_global_plan[m_nPathIndex]);
             }

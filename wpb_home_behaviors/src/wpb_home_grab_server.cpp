@@ -565,83 +565,6 @@ void ProcCloudCB(const sensor_msgs::PointCloud2 &input)
         result_msg.data = "find objects";
         result_pub.publish(result_msg);
     }
-
-    //5、抬起手臂
-    if(nStep == STEP_HAND_UP)
-    {
-        if(nTimeDelayCounter == 0)
-        {
-            mani_ctrl_msg.position[0] = fPlaneHeight + grab_lift_offset;
-            mani_ctrl_msg.position[1] = 0.16;
-            mani_ctrl_pub.publish(mani_ctrl_msg);
-            ROS_WARN("[MANI_CTRL] lift= %.2f  gripper= %.2f " ,mani_ctrl_msg.position[0], mani_ctrl_msg.position[1]);
-            result_msg.data = "hand up";
-            result_pub.publish(result_msg);
-        }
-        nTimeDelayCounter ++;
-        VelCmd(0,0,0);
-        if(nTimeDelayCounter > 50)
-        {
-            fMoveTargetX = fObjGrabX -0.55 + grab_forward_offset;
-            fMoveTargetY = 0;
-            ROS_WARN("[STEP_FORWARD] x = %.2f y= %.2f " ,fMoveTargetX, fMoveTargetY);
-            nTimeDelayCounter = 0;
-            nStep = STEP_FORWARD;
-        }
-    }
-   
-    //7、抓取物品
-    if(nStep == STEP_GRAB)
-    {
-        if(nTimeDelayCounter == 0)
-        {
-            result_msg.data = "grab";
-            result_pub.publish(result_msg);
-        }
-        mani_ctrl_msg.position[1] = grab_gripper_value;      //抓取物品手爪闭合宽度
-        mani_ctrl_pub.publish(mani_ctrl_msg);
-        //ROS_WARN("[MANI_CTRL] lift= %.2f  gripper= %.2f " ,mani_ctrl_msg.position[0], mani_ctrl_msg.position[1]);
-
-        nTimeDelayCounter++;
-        VelCmd(0,0,0);
-        if(nTimeDelayCounter > 30)
-        {
-            nTimeDelayCounter = 0;
-            nStep = STEP_OBJ_UP;
-        }
-    }
-    //8、拿起物品
-    if(nStep == STEP_OBJ_UP)
-    {
-        if(nTimeDelayCounter == 0)
-        {
-            mani_ctrl_msg.position[0] += 0.03;
-            mani_ctrl_pub.publish(mani_ctrl_msg);
-            //ROS_WARN("[MANI_CTRL] lift= %.2f  gripper= %.2f " ,mani_ctrl_msg.position[0], mani_ctrl_msg.position[1]);
-            result_msg.data = "object up";
-            result_pub.publish(result_msg);
-        }
-        nTimeDelayCounter++;
-        VelCmd(0,0,0);
-        if(nTimeDelayCounter > 10)
-        {
-            fMoveTargetX = -(fTargetGrabX-0.4);
-            fMoveTargetY = 0;
-            //ROS_WARN("[STEP_BACKWARD] x= %.2f y= %.2f " ,fMoveTargetX, fMoveTargetY);
-
-            nTimeDelayCounter = 0;
-            nStep = STEP_BACKWARD;
-        }
-    }
-    
-    //10、抓取任务完毕
-    if(nStep == STEP_DONE)
-    {
-        result_msg.data = "done";
-        result_pub.publish(result_msg);
-        nTimeOut = 0;
-        nStep = STEP_WAIT;
-    }
 }
 
 void PoseDiffCallback(const geometry_msgs::Pose2D::ConstPtr& msg)
@@ -878,6 +801,30 @@ int main(int argc, char **argv)
             result_pub.publish(result_msg);
         }
 
+        //5、抬起手臂
+        if(nStep == STEP_HAND_UP)
+        {
+            if(nTimeDelayCounter == 0)
+            {
+                mani_ctrl_msg.position[0] = fPlaneHeight + grab_lift_offset;
+                mani_ctrl_msg.position[1] = 0.16;
+                mani_ctrl_pub.publish(mani_ctrl_msg);
+                ROS_WARN("[MANI_CTRL] lift= %.2f  gripper= %.2f " ,mani_ctrl_msg.position[0], mani_ctrl_msg.position[1]);
+                result_msg.data = "hand up";
+                result_pub.publish(result_msg);
+            }
+            nTimeDelayCounter ++;
+            VelCmd(0,0,0);
+            if(nTimeDelayCounter > 15*30)
+            {
+                fMoveTargetX = fObjGrabX -0.55 + grab_forward_offset;
+                fMoveTargetY = 0;
+                ROS_WARN("[STEP_FORWARD] x = %.2f y= %.2f " ,fMoveTargetX, fMoveTargetY);
+                nTimeDelayCounter = 0;
+                nStep = STEP_FORWARD;
+            }
+        }
+    
          //6、前进靠近物品
         if(nStep == STEP_FORWARD)
         {
@@ -899,6 +846,51 @@ int main(int argc, char **argv)
 
             result_msg.data = "forward";
             result_pub.publish(result_msg);
+        }
+
+        //7、抓取物品
+        if(nStep == STEP_GRAB)
+        {
+            if(nTimeDelayCounter == 0)
+            {
+                result_msg.data = "grab";
+                result_pub.publish(result_msg);
+            }
+            mani_ctrl_msg.position[1] = grab_gripper_value;      //抓取物品手爪闭合宽度
+            mani_ctrl_pub.publish(mani_ctrl_msg);
+            //ROS_WARN("[MANI_CTRL] lift= %.2f  gripper= %.2f " ,mani_ctrl_msg.position[0], mani_ctrl_msg.position[1]);
+
+            nTimeDelayCounter++;
+            VelCmd(0,0,0);
+            if(nTimeDelayCounter > 8*30)
+            {
+                nTimeDelayCounter = 0;
+                nStep = STEP_OBJ_UP;
+            }
+        }
+
+        //8、拿起物品
+        if(nStep == STEP_OBJ_UP)
+        {
+            if(nTimeDelayCounter == 0)
+            {
+                mani_ctrl_msg.position[0] += 0.03;
+                mani_ctrl_pub.publish(mani_ctrl_msg);
+                //ROS_WARN("[MANI_CTRL] lift= %.2f  gripper= %.2f " ,mani_ctrl_msg.position[0], mani_ctrl_msg.position[1]);
+                result_msg.data = "object up";
+                result_pub.publish(result_msg);
+            }
+            nTimeDelayCounter++;
+            VelCmd(0,0,0);
+            if(nTimeDelayCounter > 3*30)
+            {
+                fMoveTargetX = -(fTargetGrabX-0.4);
+                fMoveTargetY = 0;
+                //ROS_WARN("[STEP_BACKWARD] x= %.2f y= %.2f " ,fMoveTargetX, fMoveTargetY);
+
+                nTimeDelayCounter = 0;
+                nStep = STEP_BACKWARD;
+            }
         }
 
         //9、带着物品后退
@@ -925,6 +917,15 @@ int main(int argc, char **argv)
 
             result_msg.data = "backward";
             result_pub.publish(result_msg);
+        }
+
+        //10、抓取任务完毕
+        if(nStep == STEP_DONE)
+        {
+            result_msg.data = "done";
+            result_pub.publish(result_msg);
+            nTimeOut = 0;
+            nStep = STEP_WAIT;
         }
 
         ros::spinOnce();

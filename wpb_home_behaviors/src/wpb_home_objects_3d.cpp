@@ -36,6 +36,7 @@
  ********************************************************************/
 
 #include <ros/ros.h>
+#include <std_msgs/String.h>
 #include <pcl_ros/point_cloud.h>
 #include <pcl/point_types.h>
 #include <boost/foreach.hpp>
@@ -67,6 +68,12 @@
 #include <stdio.h>
 #include <math.h>
 #include <iostream>
+
+
+// 工作模式
+#define MODE_IDLE                   0
+#define MODE_OBJECT_DETECT 1
+static int nMode = MODE_IDLE;
 
 using namespace std;
 
@@ -114,7 +121,10 @@ static vector<stObjectDetected> arObj;
 
 void ProcCloudCB(const sensor_msgs::PointCloud2 &input)
 {
-    //ROS_WARN("ProcCloudCB");
+    //MODE_IDLE 不处理数据
+    if(nMode == MODE_IDLE)
+        return;
+
     //to footprint
     sensor_msgs::PointCloud2 pc_footprint;
     bool res = tf_listener->waitForTransform("/base_footprint", input.header.frame_id, input.header.stamp, ros::Duration(5.0)); 
@@ -451,6 +461,25 @@ void RemoveBoxes()
     marker_pub.publish(text_marker);
 }
 
+void BehaviorCB(const std_msgs::String::ConstPtr &msg)
+{
+    int nFindIndex = 0;
+    nFindIndex = msg->data.find("object_detect start");
+    if( nFindIndex >= 0 )
+    {
+        ROS_WARN("[object_detect start] ");
+        nMode = MODE_OBJECT_DETECT;
+    }
+
+    nFindIndex = msg->data.find("object_detect stop");
+    if( nFindIndex >= 0 )
+    {
+        ROS_WARN("[object_detect stop] ");
+        RemoveBoxes();
+        nMode = MODE_IDLE;
+    }
+}
+
 
 int main(int argc, char **argv)
 {
@@ -460,10 +489,16 @@ int main(int argc, char **argv)
 
     ros::NodeHandle nh_param("~");
     nh_param.param<std::string>("topic", pc_topic, "/kinect2/qhd/points");
+    bool start_flag = false;
+    nh_param.param<bool>("start", start_flag, false);
+    if(start_flag == true)
+    {
+        nMode = MODE_OBJECT_DETECT;
+    }
 
     ros::NodeHandle nh;
     ros::Subscriber pc_sub = nh.subscribe(pc_topic, 10 , ProcCloudCB);
-
+    ros::Subscriber beh_sub = nh.subscribe("/wpb_home/behaviors", 30, BehaviorCB);
     pc_pub = nh.advertise<sensor_msgs::PointCloud2>("obj_pointcloud",1);
     marker_pub = nh.advertise<visualization_msgs::Marker>("obj_marker", 10);
     coord_pub = nh.advertise<wpb_home_behaviors::Coord>("/wpb_home/objects_3d", 10);

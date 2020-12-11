@@ -160,7 +160,8 @@ static int nTimeOut = 0;
 
 void ProcCloudCB(const sensor_msgs::PointCloud2 &input)
 {
-    //ROS_WARN("ProcCloudCB");
+    if(nStep == STEP_WAIT)
+        return;
 
     //to footprint
     sensor_msgs::PointCloud2 pc_footprint;
@@ -713,6 +714,12 @@ int main(int argc, char **argv)
 
     ros::NodeHandle nh_param("~");
     nh_param.param<std::string>("topic", pc_topic, "/kinect2/sd/points");
+    bool start_flag = false;
+    nh_param.param<bool>("start", start_flag, false);
+    if(start_flag == true)
+    {
+        nStep = STEP_FIND_PLANE;
+    }
 
     ros::NodeHandle nh;
     ros::Subscriber pc_sub = nh.subscribe(pc_topic, 10 , ProcCloudCB);

@@ -31,63 +31,37 @@
 *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 *  POSSIBILITY OF SUCH DAMAGE.
 *********************************************************************/
-/* @author Zhang Wanjie                                             */
+/*!******************************************************************
+ @author     ZhangWanjie
+ ********************************************************************/
 
 #include <ros/ros.h>
-#include <std_msgs/String.h>
-#include <geometry_msgs/Pose.h>
-#include <wpb_home_behaviors/Coord.h>
+#include <sensor_msgs/Joy.h>
 
-static ros::Publisher behaviors_pub;
-static ros::Publisher grab_pub;
-static geometry_msgs::Pose grab_msg;
-static bool bGrabbing = false;
-
-void ObjCoordCB(const wpb_home_behaviors::Coord::ConstPtr &msg)
+void JoyCallback(const sensor_msgs::Joy::ConstPtr& msg)
 {
-    if(bGrabbing == false)
-    {
-        int nNumObj = msg->name.size();
-        ROS_WARN("[ObjCoordCB] obj = %d",nNumObj);
-        if(nNumObj > 0)
-        {
-            ROS_WARN("[ObjCoordCB] Grab %s! (%.2f , %.2f , %.2f)",msg->name[0].c_str(),msg->x[0],msg->y[0],msg->z[0]);
-            grab_msg.position.x = msg->x[0];
-            grab_msg.position.y = msg->y[0];
-            grab_msg.position.z = msg->z[0];
-            grab_pub.publish(grab_msg);
-            bGrabbing = true;
-
-            std_msgs::String behavior_msg;
-            behavior_msg.data = "object_detect stop";
-            behaviors_pub.publish(behavior_msg);
-        }
-    }
-}
-
-void GrabResultCB(const std_msgs::String::ConstPtr &msg)
-{
-    //ROS_WARN("[GrabResultCB] %s",msg->data.c_str());
+  printf("手柄摇杆： [0]%.2f  [1]%.2f  [2]%.2f  [3]%.2f\n",
+      msg->axes[0],
+      msg->axes[1],
+      msg->axes[2],
+      msg->axes[3]
+    );
+  printf("手柄按钮： [0]%d  [1]%d  [2]%d  [3]%d\n",
+      msg->buttons[0],
+      msg->buttons[1],
+      msg->buttons[2],
+      msg->buttons[3]
+    );
 }
 
 int main(int argc, char** argv)
 {
-    ros::init(argc, argv, "wpb_home_grab_node");
-    ROS_WARN("wpb_home_grab_node start!");
+  ros::init(argc, argv, "wpb_home_joystick_demo");
 
-    ros::NodeHandle n;
-    behaviors_pub = n.advertise<std_msgs::String>("/wpb_home/behaviors", 10);
-    grab_pub = n.advertise<geometry_msgs::Pose>("/wpb_home/grab_action", 1);
-    ros::Subscriber obj_sub = n.subscribe("/wpb_home/objects_3d", 1, ObjCoordCB);
-    ros::Subscriber res_sub = n.subscribe("/wpb_home/grab_result", 30, GrabResultCB);
+  ros::NodeHandle n;
+  ros::Subscriber joy_sub = n.subscribe<sensor_msgs::Joy>("/joy", 10, JoyCallback);
 
-    sleep(1);
+  ros::spin();
 
-    std_msgs::String behavior_msg;
-    behavior_msg.data = "object_detect start";
-    behaviors_pub.publish(behavior_msg);
-
-    ros::spin();
-
-    return 0;
+  return 0;
 }

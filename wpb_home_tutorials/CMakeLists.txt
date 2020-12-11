@@ -253,6 +253,14 @@ target_link_libraries(wpb_home_sr_xfyun
   ${catkin_LIBRARIES}
 )
 
+add_executable(wpb_home_joystick_demo
+  src/wpb_home_joystick_demo.cpp
+)
+add_dependencies(wpb_home_joystick_demo ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(wpb_home_joystick_demo
+  ${catkin_LIBRARIES}
+)
+
 add_executable(wpb_home_velocity_control
   src/wpb_home_velocity_control.cpp
 )
@@ -276,7 +284,6 @@ add_dependencies(wpb_home_speak ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXP
 target_link_libraries(wpb_home_speak
   ${catkin_LIBRARIES}
 )
-
 
 add_executable(wpb_home_imu_turn
   src/wpb_home_imu_turn.cpp
@@ -403,5 +410,13 @@ add_executable(wpb_home_face_node
 )
 add_dependencies(wpb_home_face_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(wpb_home_face_node
+  ${catkin_LIBRARIES}
+)
+
+add_executable(wpb_home_drink_serve
+  src/wpb_home_drink_serve.cpp
+)
+add_dependencies(wpb_home_drink_serve ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(wpb_home_drink_serve
   ${catkin_LIBRARIES}
 )

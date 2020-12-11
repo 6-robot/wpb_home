@@ -358,6 +358,22 @@ target_link_libraries(wpb_home_pointcloud_node
   ${catkin_LIBRARIES}
 )
 
+add_executable(wpb_home_plane_detect
+  src/wpb_home_plane_detect.cpp
+)
+add_dependencies(wpb_home_plane_detect ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(wpb_home_plane_detect
+  ${catkin_LIBRARIES}
+)
+
+add_executable(wpb_home_pointcloud_cluster
+  src/wpb_home_pointcloud_cluster.cpp
+)
+add_dependencies(wpb_home_pointcloud_cluster ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(wpb_home_pointcloud_cluster
+  ${catkin_LIBRARIES}
+)
+
 add_executable(wpb_home_behavior_node
   src/wpb_home_behavior_node.cpp
 )

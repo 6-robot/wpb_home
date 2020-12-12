@@ -38,7 +38,7 @@
 #include <std_msgs/Float64.h>
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/Pose.h>
-#include <wpb_mani_behaviors/Coord.h>
+#include <wpb_home_behaviors/Coord.h>
 #include <sensor_msgs/JointState.h>
 
 static ros::Publisher behaviors_pub;
@@ -54,13 +54,13 @@ static sensor_msgs::JointState mani_ctrl_msg;
 #define STEP_DRINK_DETECT                    2
 #define STEP_GRAB_DRINK                         3
 #define STEP_GOTO_DINNING_ROOM    4
-#define STEP_PUT_DOWN                            6
-#define STEP_BACKWARD                             7
-#define STEP_DONE                                         8
+#define STEP_PUT_DOWN                            5
+#define STEP_BACKWARD                             6
+#define STEP_DONE                                         7
 int nStep = STEP_READY;
 static int nDeley = 0;
 
-void DrinkCoordCB(const wpb_mani_behaviors::Coord::ConstPtr &msg)
+void DrinkCoordCB(const wpb_home_behaviors::Coord::ConstPtr &msg)
 {
     if(nStep == STEP_DRINK_DETECT)
     {
@@ -132,9 +132,9 @@ int main(int argc, char** argv)
 
     ros::NodeHandle n;
     behaviors_pub = n.advertise<std_msgs::String>("/wpb_home/behaviors", 10);
+    ros::Subscriber drink_result_sub = n.subscribe("/wpb_home/objects_3d", 10 , DrinkCoordCB);
     waypoint_pub = n.advertise<std_msgs::String>("/waterplus/navi_waypoint", 10);
     ros::Subscriber navi_res_sub = n.subscribe("/waterplus/navi_result", 10, NaviResultCB);
-    ros::Subscriber drink_result_sub = n.subscribe("/wpb_home/objects_3d", 10 , DrinkCoordCB);
     grab_drink_pub = n.advertise<geometry_msgs::Pose>("/wpb_home/grab_action", 1);
     ros::Subscriber grab_res_sub = n.subscribe("/wpb_home/grab_result", 10, GrabResultCB);
     mani_ctrl_pub = n.advertise<sensor_msgs::JointState>("/wpb_home/mani_ctrl", 10);
@@ -164,9 +164,6 @@ int main(int argc, char** argv)
             nDeley ++;
             if(nDeley > 5*10)
             {
-                mani_ctrl_msg.name[0] = "lift";
-                mani_ctrl_msg.position[0] = 0;            //收回手臂
-                mani_ctrl_pub.publish(mani_ctrl_msg);
                 nDeley = 0;
                 nStep = STEP_BACKWARD;
             }

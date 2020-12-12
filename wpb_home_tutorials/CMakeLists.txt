@@ -40,6 +40,7 @@ find_package(catkin REQUIRED COMPONENTS
   sensor_msgs geometry_msgs std_msgs visualization_msgs 
   image_geometry message_generation
   move_base_msgs actionlib 
+  wpb_home_behaviors
 )
 ##   * add "message_runtime" and every package in MSG_DEP_SET to
 ##     catkin_package(CATKIN_DEPENDS ...)
@@ -413,10 +414,10 @@ target_link_libraries(wpb_home_face_node
   ${catkin_LIBRARIES}
 )
 
-add_executable(wpb_home_drink_serve
-  src/wpb_home_drink_serve.cpp
+add_executable(wpb_home_serve_drinks
+  src/wpb_home_serve_drinks.cpp
 )
-add_dependencies(wpb_home_drink_serve ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(wpb_home_drink_serve
+add_dependencies(wpb_home_serve_drinks ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(wpb_home_serve_drinks
   ${catkin_LIBRARIES}
 )

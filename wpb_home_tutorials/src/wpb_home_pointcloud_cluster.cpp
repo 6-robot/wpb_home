@@ -103,6 +103,7 @@ void PointcloudCB(const sensor_msgs::PointCloud2 &input)
         points_z_sum += cloud_src.points[point_index].z;
     }
     float plane_height = points_z_sum/point_num;
+    ROS_INFO("plane_height = %.2f",plane_height);
 
     // 对点云再次进行截取，只保留平面以上的部分
     pass.setInputCloud (cloud_src.makeShared());

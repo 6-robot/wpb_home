@@ -180,6 +180,9 @@ int main(int argc, char** argv)
                 mani_ctrl_msg.name[0] = "lift";
                 mani_ctrl_msg.position[0] = 0;            //收回手臂
                 mani_ctrl_pub.publish(mani_ctrl_msg);
+
+                vel_cmd.linear.x = 0;                               //停止移动
+                vel_pub.publish(vel_cmd);
                 nStep = STEP_DONE;
             }
         }

@@ -63,7 +63,7 @@
 #include <tf/transform_listener.h>
 #include <visualization_msgs/Marker.h>
 #include <wpb_home_behaviors/Coord.h>
-#include "highgui.h"
+#include <opencv2/highgui/highgui_c.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>

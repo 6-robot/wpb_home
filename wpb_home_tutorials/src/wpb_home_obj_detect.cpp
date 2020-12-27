@@ -53,7 +53,7 @@
 #include <cv_bridge/cv_bridge.h>
 #include <image_transport/image_transport.h>
 #include <opencv2/highgui/highgui.hpp>
-#include "opencv2/imgproc/imgproc.hpp"
+#include <opencv2/imgproc/imgproc.hpp>
 #include <sensor_msgs/Image.h>
 #include <pcl_ros/transforms.h>
 #include <sensor_msgs/PointCloud2.h>
@@ -61,7 +61,7 @@
 #include <geometry_msgs/PointStamped.h>
 #include <tf/transform_listener.h>
 #include <visualization_msgs/Marker.h>
-#include "highgui.h"
+#include <opencv2/highgui/highgui_c.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>

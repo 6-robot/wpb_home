@@ -2,7 +2,7 @@
   <arg name="model" default="$(find wpb_home_bringup)/urdf/wpb_home_mani.urdf"/>
   <param name="robot_description" command="$(find xacro)/xacro.py $(arg model)" />
   <arg name="gui" default="false" />
-  <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher" />
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
   
   <!-- Run gmapping -->
   <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping">

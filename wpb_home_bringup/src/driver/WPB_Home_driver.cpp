@@ -167,6 +167,19 @@ void CWPB_Home_driver::m_ParseFrame()
 	nParseCount = 0;
 	if (m_ParseBuf[4] == 0x06)	//IO
 	{
+		unsigned char bIOFlag = 0x01;
+		for(int i=0;i<4;i++)
+		{
+			if((m_ParseBuf[8] & bIOFlag) > 0)
+			{
+				arValIOInput[i] = 1;
+			}
+			else
+			{
+				arValIOInput[i] = 0;
+			}
+			bIOFlag = bIOFlag <<1;
+		}
 	}
 
 	if (m_ParseBuf[4] == 0x07)	//AD

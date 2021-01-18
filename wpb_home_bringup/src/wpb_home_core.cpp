@@ -43,11 +43,16 @@
 #include <geometry_msgs/Twist.h>
 #include <sensor_msgs/JointState.h>
 #include <std_msgs/String.h>
+#include <std_msgs/Int32MultiArray.h>
 #include "driver/WPB_Home_driver.h"
 #include <math.h>
 
 static CWPB_Home_driver m_wpb_home;
 static int nLastMotorPos[3];
+static bool ad_publish_enable = true;
+ static std_msgs::Int32MultiArray ad_msg;
+static bool input_publish_enable = true;
+ static std_msgs::Int32MultiArray input_msg;
 void CmdVelCallback(const geometry_msgs::Twist::ConstPtr& msg)
 {
     //ROS_INFO("[wpb_home] liner(%.2f %.2f) angular(%.2f)", msg->linear.x,msg->linear.y,msg->angular.z);
@@ -114,6 +119,8 @@ int main(int argc, char** argv)
     ros::Subscriber cmd_vel_sub = n.subscribe("cmd_vel",10,&CmdVelCallback);
     ros::Subscriber mani_ctrl_sub = n.subscribe("/wpb_home/mani_ctrl",30,&ManiCtrlCallback);
     ros::Publisher imu_pub = n.advertise<sensor_msgs::Imu >("imu/data_raw", 100);
+    ros::Publisher ad_pub = n.advertise<std_msgs::Int32MultiArray>("/wpb_home/ad", 10);
+    ros::Publisher input_pub = n.advertise<std_msgs::Int32MultiArray>("/wpb_home/input", 10);
 
     ros::NodeHandle n_param("~");
     std::string strSerialPort;
@@ -318,6 +325,28 @@ int main(int argc, char** argv)
         joint_msg.name = joint_name;
         joint_msg.position = joint_pos;
         joint_state_pub.publish(joint_msg);
+
+        // ad
+        if(ad_publish_enable == true)
+        {
+            ad_msg.data.clear();
+            for(int i=0;i<15;i++)
+            {
+                ad_msg.data.push_back(m_wpb_home.arValAD[i]); 
+            }
+            ad_pub.publish(ad_msg);
+        }
+
+        //input
+        if(input_publish_enable == true)
+        {
+            input_msg.data.clear();
+            for(int i=0;i<4;i++)
+            {
+                input_msg.data.push_back(m_wpb_home.arValIOInput[i]); 
+            }
+            input_pub.publish(input_msg);
+        }
 
         ros::spinOnce();
         r.sleep();

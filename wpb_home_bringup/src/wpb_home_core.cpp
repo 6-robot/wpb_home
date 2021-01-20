@@ -50,9 +50,11 @@
 static CWPB_Home_driver m_wpb_home;
 static int nLastMotorPos[3];
 static bool ad_publish_enable = true;
- static std_msgs::Int32MultiArray ad_msg;
+static std_msgs::Int32MultiArray ad_msg;
 static bool input_publish_enable = true;
- static std_msgs::Int32MultiArray input_msg;
+static std_msgs::Int32MultiArray input_msg;
+static int arOutput[8];
+
 void CmdVelCallback(const geometry_msgs::Twist::ConstPtr& msg)
 {
     //ROS_INFO("[wpb_home] liner(%.2f %.2f) angular(%.2f)", msg->linear.x,msg->linear.y,msg->angular.z);
@@ -98,7 +100,19 @@ void CtrlCallback(const std_msgs::String::ConstPtr &msg)
     {
         printf("\n[电机码盘位置] 电机1= %d    电机2= %d    电机3= %d\n", m_wpb_home.arMotorPos[0], m_wpb_home.arMotorPos[1], m_wpb_home.arMotorPos[2]);
     }
+}
 
+void OutputCallback(const std_msgs::Int32MultiArray::ConstPtr &msg)
+{
+    int nNumOutput =  msg->data.size();
+    if(nNumOutput > 8)
+        nNumOutput = 8;
+
+    for(int i=0;i<nNumOutput;i++)
+    {
+        arOutput[i] = msg->data[i];
+    }
+    m_wpb_home.Output(arOutput);
 }
 
 static float fKVx = 1.0f/sqrt(3.0f);
@@ -121,6 +135,10 @@ int main(int argc, char** argv)
     ros::Publisher imu_pub = n.advertise<sensor_msgs::Imu >("imu/data_raw", 100);
     ros::Publisher ad_pub = n.advertise<std_msgs::Int32MultiArray>("/wpb_home/ad", 10);
     ros::Publisher input_pub = n.advertise<std_msgs::Int32MultiArray>("/wpb_home/input", 10);
+
+    for(int i=0;i<8;i++)
+        arOutput[i] = 0;
+    ros::Subscriber output_sub = n.subscribe("/wpb_home/output",10,&OutputCallback);
 
     ros::NodeHandle n_param("~");
     std::string strSerialPort;

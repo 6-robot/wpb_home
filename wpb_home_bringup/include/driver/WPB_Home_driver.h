@@ -50,6 +50,7 @@ public:
 	void ManiPos(float inHeight, int inRaiseSpeed, float inGripper, int inGripperSpeed);
 	void ManiCmd(float inManiLift, float inLiftSpeed, float inManiGripper, float inGripperSpeed);
 	bool ManiArrived();
+	void Output(int* inValue);
 	float fLinearAccLimit;
 	float fAngularAccLimit;
 

@@ -165,7 +165,7 @@ void CWPB_Home_driver::m_CalSendSum(unsigned char* pNewCmdBuf)
 void CWPB_Home_driver::m_ParseFrame()
 {
 	nParseCount = 0;
-	if (m_ParseBuf[4] == 0x06)	//IO
+	if (m_ParseBuf[4] == 0x06)	//IO_Input
 	{
 		unsigned char bIOFlag = 0x01;
 		for(int i=0;i<4;i++)
@@ -473,4 +473,21 @@ bool CWPB_Home_driver::ManiArrived()
 		bArrived = false;
 	}
 	return bArrived;
+}
+
+void CWPB_Home_driver::Output(int* inValue)
+{
+	//55 AA 40 01 06 70 输出IO 校验和
+	unsigned char cOutputData = 0;
+	for(int i=7;i>=0;i--)
+	{
+		if(inValue[i] > 0)
+		{
+			cOutputData |= 0x01;
+		}
+		if(i > 0)
+			cOutputData = cOutputData << 1;
+	}
+	int nCmdLenght = GenCmd(0, 0x40, 0x06, 0x70, &cOutputData, 1);
+	Send(m_SendBuf, nCmdLenght);
 }

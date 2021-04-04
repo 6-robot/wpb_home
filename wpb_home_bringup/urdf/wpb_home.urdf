@@ -11,7 +11,12 @@
   <material name = "blue">
     <color rgba = "0.2 0.2 0.9 1"/>
   </material>
-
+  <material name = "red">
+    <color rgba = "0.9 0.2 0.2 1"/>
+  </material>
+  <material name = "TransparentGreen">
+    <color rgba = "0.0 1.0 0.0 0.5"/>
+  </material>
 
 <link name="base_footprint">
     <visual>

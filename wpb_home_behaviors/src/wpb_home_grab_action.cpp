@@ -214,7 +214,7 @@ int main(int argc, char **argv)
             nTimeDelayCounter ++;
             mani_ctrl_pub.publish(mani_ctrl_msg);
             VelCmd(0,0,0);
-            if(nTimeDelayCounter > 15*30)
+            if(nTimeDelayCounter > 20*30)
             {
                 fMoveTargetX = fTargetGrabX -0.65 + grab_forward_offset;
                 fMoveTargetY = 0;

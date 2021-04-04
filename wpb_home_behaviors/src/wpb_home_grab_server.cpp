@@ -822,7 +822,7 @@ int main(int argc, char **argv)
             }
             nTimeDelayCounter ++;
             VelCmd(0,0,0);
-            if(nTimeDelayCounter > 15*30)
+            if(nTimeDelayCounter > 20*30)
             {
                 fMoveTargetX = fObjGrabX -0.55 + grab_forward_offset;
                 fMoveTargetY = 0;

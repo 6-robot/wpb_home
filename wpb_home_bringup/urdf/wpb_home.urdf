@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<robot name="wp_v4">
+<robot name="wpb_home">
 
   <!-- material -->
   <material name = "black">

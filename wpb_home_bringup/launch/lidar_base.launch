@@ -4,7 +4,7 @@
   <arg name="gui" default="false" />
   <arg name="rvizconfig" default="$(find wpb_home_bringup)/rviz/sensor.rviz" />
 
-  <param name="robot_description" command="$(find xacro)/xacro.py $(arg model)" />
+  <param name="robot_description" command="$(find xacro)/xacro $(arg model)" />
   <param name="use_gui" value="$(arg gui)"/>
 
   <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
@@ -18,6 +18,12 @@
     <param name="frame_id"            type="string" value="laser"/>
     <param name="inverted"            type="bool"   value="false"/>
     <param name="angle_compensate"    type="bool"   value="true"/>
+    <remap from="scan" to="scan_raw"/>
+  </node>
+    
+  <!-- Run lidar filter -->
+  <node pkg="wpb_home_bringup" type="wpb_home_lidar_filter" name="wpb_home_lidar_filter">
+    <param name="pub_topic" value="/scan"/>
   </node>
 
   <!-- wpb_home core-->

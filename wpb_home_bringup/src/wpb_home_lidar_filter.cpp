@@ -61,25 +61,28 @@ void CWPHLidarFilter::lidarCallback(const sensor_msgs::LaserScan::ConstPtr& scan
 {
     //ROS_INFO("[wpb_home_lidar_filter]");
     int nRanges = scan->ranges.size();
+    float k = nRanges/360.0f;
     sensor_msgs::LaserScan new_scan;
     new_scan.header.stamp = scan->header.stamp;
     new_scan.header.frame_id = scan->header.frame_id;
     new_scan.angle_max = scan->angle_max;
     new_scan.angle_min = scan->angle_min;
-    new_scan.angle_increment = scan->angle_increment;
-    new_scan.time_increment = scan->time_increment;
+    // new_scan.angle_increment = scan->angle_increment;
+    new_scan.angle_increment = M_PI/180;
+    // new_scan.time_increment = scan->time_increment;
+    new_scan.time_increment = scan->time_increment*k;
     new_scan.range_min = 0.25;
     new_scan.range_max = scan->range_max;
-    new_scan.ranges.resize(nRanges);
-    new_scan.intensities.resize(nRanges);
-    for(int i=0 ; i<nRanges ; i++)
+    new_scan.ranges.resize(360);
+    new_scan.intensities.resize(360);
+    for(int i=0 ; i<360 ; i++)
     {
-        new_scan.ranges[i] = scan->ranges[i];
+        new_scan.ranges[i] = scan->ranges[i*k];
         if(new_scan.ranges[i] < 0.25)
         {
             new_scan.ranges[i] = new_scan.range_max+1.0;
         }
-        new_scan.intensities[i] = scan->intensities[i];
+        new_scan.intensities[i] = scan->intensities[i*k];
     }
     scan_pub.publish(new_scan);
 }

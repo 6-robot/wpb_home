@@ -63,8 +63,11 @@ static float ranges[360];
 static float keep_dist = 1.0;   //跟随距离
 static float flw_x = keep_dist;
 static float flw_y = 0;
+static float new_flw_x = 0;
+static float new_flw_y = 0;
 static float max_linear_vel = 0.5;
 static float max_angular_vel = 1.5;
+static float raw[1920*1080*2];
 
 void DrawBox(float inMinX, float inMaxX, float inMinY, float inMaxY, float inMinZ, float inMaxZ, float inR, float inG, float inB);
 void DrawText(std::string inText, float inScale, float inX, float inY, float inZ, float inR, float inG, float inB);
@@ -91,9 +94,6 @@ void ProcCloudCB(const sensor_msgs::PointCloud2 &input)
     float maxy = flw_y;
     float minz = 0;
     float maxz = 1.8;
-    float* raw = new float[cloud_src.size()*2];
-    float new_flw_x = 0;
-    float new_flw_y = 0;
     int nPointCount = 0;
     for(size_t i=0; i< cloud_src.size(); i++)
     {
@@ -119,6 +119,27 @@ void ProcCloudCB(const sensor_msgs::PointCloud2 &input)
     cloud_follow.height = 1;
     new_flw_x /= nPointCount;
     new_flw_y /= nPointCount;
+    
+    //output
+    sensor_msgs::PointCloud2 output;
+    pcl::toROSMsg(cloud_follow, output);
+    output.header.frame_id = pc_footprint.header.frame_id;
+    pc_pub.publish(output);
+
+    RemoveBoxes();
+    float box_height = 1.8;
+    DrawBox(minx,maxx,miny,maxy,0,box_height,0,1,0);
+    DrawPath(flw_x,flw_y,0);
+    DrawText("Follow_Target",0.1,flw_x,flw_y,box_height+0.05,1,1,0);
+}
+
+void ScanCB(const sensor_msgs::LaserScan::ConstPtr& scan)
+{
+    for(int i=0;i<360;i++)
+    {
+        ranges[i] = scan->ranges[i];
+    }
+
     filter(flw_x,flw_y,ranges,raw,new_flw_x,new_flw_y);
     flw_x = new_flw_x;
     flw_y = new_flw_y;
@@ -155,27 +176,6 @@ void ProcCloudCB(const sensor_msgs::PointCloud2 &input)
     if(bActive == true)
     {
         vel_pub.publish(vel_cmd);
-    }
-    
-    //output
-    sensor_msgs::PointCloud2 output;
-    pcl::toROSMsg(cloud_follow, output);
-    output.header.frame_id = pc_footprint.header.frame_id;
-    pc_pub.publish(output);
-    delete []raw;
-
-    RemoveBoxes();
-    float box_height = 1.8;
-    DrawBox(minx,maxx,miny,maxy,0,box_height,0,1,0);
-    DrawPath(flw_x,flw_y,0);
-    DrawText("Follow_Target",0.1,flw_x,flw_y,box_height+0.05,1,1,0);
-}
-
-void ScanCB(const sensor_msgs::LaserScan::ConstPtr& scan)
-{
-    for(int i=0;i<360;i++)
-    {
-        ranges[i] = scan->ranges[i];
     }
 }
 

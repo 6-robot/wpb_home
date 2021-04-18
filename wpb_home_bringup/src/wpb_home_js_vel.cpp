@@ -65,6 +65,7 @@ TeleopJoy::TeleopJoy()
   lx = 0;
   ly = 0;
   ry = 0;
+  bStart = false;
   velcmd_pub = n.advertise<geometry_msgs::Twist>("/cmd_vel",10);
   sub = n.subscribe<sensor_msgs::Joy>("joy",10,&TeleopJoy::callBack,this);
   current_time = ros::Time::now();

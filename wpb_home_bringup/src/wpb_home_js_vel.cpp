@@ -45,6 +45,7 @@ class TeleopJoy
 {
 public:
   TeleopJoy();
+  bool bStart;
   float lx;
   float ly;
   float ry;
@@ -54,6 +55,7 @@ public:
   ros::Time current_time;
   ros::Time last_time;
   ros::Publisher velcmd_pub;
+  void SendVelcmd();
 private:
   void callBack(const sensor_msgs::Joy::ConstPtr& joy);
 };
@@ -81,6 +83,13 @@ void TeleopJoy::callBack(const sensor_msgs::Joy::ConstPtr& joy)
   ly = joy->axes[0];  //shift
   ry = joy->axes[3];
 
+  bStart = true;
+}
+
+void TeleopJoy::SendVelcmd()
+{
+  if(bStart == false)
+    return;
   geometry_msgs::Twist vel_cmd;
   vel_cmd.linear.x = (float)lx*kl;
   vel_cmd.linear.y = (float)ly*kl;
@@ -89,7 +98,6 @@ void TeleopJoy::callBack(const sensor_msgs::Joy::ConstPtr& joy)
   vel_cmd.angular.y = 0;
   vel_cmd.angular.z = (float)ry*kt;
   velcmd_pub.publish(vel_cmd);
-  
 }
 
 int main(int argc, char** argv)
@@ -98,7 +106,12 @@ int main(int argc, char** argv)
 
   TeleopJoy cTeleopJoy;
 
-  ros::spin();
-
+  ros::Rate r(30);
+  while(ros::ok())
+  {
+    cTeleopJoy.SendVelcmd();
+    ros::spinOnce();
+    r.sleep();
+  }
   return 0;
 }

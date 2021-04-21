@@ -145,8 +145,11 @@ int main(int argc, char** argv)
     n_param.param<std::string>("serial_port", strSerialPort, "/dev/ttyUSB0");
     m_wpb_home.Open(strSerialPort.c_str(),115200);
 
-    bool bImuOdom;
+    bool bImuOdom = false;
     n_param.param<bool>("imu_odom", bImuOdom, false);
+
+    bool bOdom = true;
+    n_param.param<bool>("odom", bOdom, true);
     
     ros::Time current_time, last_time;
     current_time = ros::Time::now();
@@ -279,9 +282,12 @@ int main(int argc, char** argv)
                 odom.twist.twist.angular.y = 0;
                 odom.twist.twist.angular.z = fVz;
 
-                //plublishing the odometry and new tf
-                broadcaster.sendTransform(odom_trans);
-                odom_pub.publish(odom);
+                if(bOdom == true)
+                {
+                    //plublishing the odometry and new tf
+                    broadcaster.sendTransform(odom_trans);
+                    odom_pub.publish(odom);
+                }
 
                 lastVel.linear.x = fVx;
                 lastVel.linear.y = fVy;
@@ -293,12 +299,15 @@ int main(int argc, char** argv)
             }
             else
             {
-                odom_trans.header.stamp = ros::Time::now();
-                //plublishing the odometry and new tf
-                broadcaster.sendTransform(odom_trans);
-                odom.header.stamp = ros::Time::now();
-                odom_pub.publish(odom);
-                //ROS_INFO("[odom] zero");
+                if(bOdom == true)
+                {
+                    odom_trans.header.stamp = ros::Time::now();
+                    //plublishing the odometry and new tf
+                    broadcaster.sendTransform(odom_trans);
+                    odom.header.stamp = ros::Time::now();
+                    odom_pub.publish(odom);
+                    //ROS_INFO("[odom] zero");
+                }
             }
 
             pose_diff_pub.publish(pose_diff_msg);

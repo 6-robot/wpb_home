@@ -1,0 +1,19 @@
+<launch>
+  
+  <!-- wpb_home_motor_encoder -->
+  <node pkg="wpb_home_bringup" type="wpb_home_motor_encoder" name="wpb_home_motor_encoder" output="screen"/>
+
+  <!-- js node -->
+  <node respawn="true" pkg="joy" type="joy_node" name="wpb_home_joy" >
+    <param name="dev" type="string" value="/dev/input/js0" />
+    <param name="deadzone" value="0.12" />
+  </node>
+
+  <!-- Axes Velcmd -->
+  <param name="axis_linear" value="1" type="int"/>
+  <param name="axis_angular" value="0" type="int"/>
+  <param name="scale_linear" value="1" type="double"/>
+  <param name="scale_angular" value="1" type="double"/>
+  <node pkg="wpb_home_bringup" type="wpb_home_js_vel" name="teleop"/>
+
+</launch>

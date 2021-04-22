@@ -41,10 +41,16 @@
 #include "driver/WPB_Home_driver.h"
 
 static CWPB_Home_driver m_wpb_home;
+static float vel_x = 0.3;
+static float vel_y = 0;
+static float vel_z = 0;
+
 void cmdVelCallback(const geometry_msgs::Twist::ConstPtr& msg)
 {
     //ROS_INFO("[wpb_home_cmd_vel] liner(%.2f %.2f) angular(%.2f)", msg->linear.x,msg->linear.y,msg->angular.z);
-    m_wpb_home.Velocity(msg->linear.x,msg->linear.y,msg->angular.z);
+    vel_x = msg->linear.x;
+    vel_y = msg->linear.y;
+    vel_z = msg->angular.z;
 }
 
 static int nFirstVal[3];
@@ -55,17 +61,24 @@ int main(int argc, char** argv)
     ros::NodeHandle n;
     ros::Subscriber cmd_vel_sub = n.subscribe("cmd_vel",1,&cmdVelCallback);
 
-    m_wpb_home.Open("/dev/ttyUSB1",115200);
+    m_wpb_home.Open("/dev/ftdi",115200);
     
     ros::Rate r(100.0);
     r.sleep();
 
+    int display_count = 0;
     while(n.ok())
     {
         m_wpb_home.ReadNewData();
 
         ///////////////////
-        //ROS_INFO("encoder [M1]%d [M2]%d [M3]%d", m_wpb_home.arMotorPos[0], m_wpb_home.arMotorPos[1], m_wpb_home.arMotorPos[2]);
+        display_count ++;
+        if(display_count > 100)
+        {
+            display_count = 0;
+            ROS_WARN(" [M1] %d   [M2] %d   [M3] %d", m_wpb_home.arMotorPos[0], m_wpb_home.arMotorPos[1], m_wpb_home.arMotorPos[2]);
+            m_wpb_home.Velocity(vel_x,vel_y,vel_z);
+        }
         ////////////////////
         if(bFirst == true)
         {
@@ -80,7 +93,7 @@ int main(int argc, char** argv)
             nDiff[0] = m_wpb_home.arMotorPos[0] - nFirstVal[0];
             nDiff[1] = m_wpb_home.arMotorPos[1] - nFirstVal[1];
             nDiff[2] = m_wpb_home.arMotorPos[2] - nFirstVal[2];
-            ROS_INFO("Diff [M1]%d [M2]%d [M3]%d", nDiff[0], nDiff[1], nDiff[2]);
+            // ROS_INFO("Diff [M1]%d [M2]%d [M3]%d", nDiff[0], nDiff[1], nDiff[2]);
         }
         /////////////////////
         

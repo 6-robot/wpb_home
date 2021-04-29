@@ -49,6 +49,8 @@ static float grab_lift_offset = 0.0f;       //手臂抬起高度的补偿偏移�
 static float grab_forward_offset = 0.0f;    //手臂抬起后，机器人向前抓取物品移动的位移偏移量
 static float grab_gripper_value = 0.032;    //抓取物品时，手爪闭合后的手指间距
 
+static float vel_max = 0.5;                     //移动限速
+
 #define STEP_WAIT           0
 #define STEP_FIND_PLANE     1
 #define STEP_PLANE_DIST     2
@@ -112,12 +114,22 @@ void PoseDiffCallback(const geometry_msgs::Pose2D::ConstPtr& msg)
     pose_diff.theta = msg->theta;
 }
 
+float VelFixed(float inVel,float inMax)
+{
+    float retVel = inVel;
+    if(retVel > inMax)
+        retVel = inMax;
+    if(retVel < -inMax)
+        retVel = -inMax;
+    return retVel;
+}
+
 void VelCmd(float inVx , float inVy, float inTz)
 {
     geometry_msgs::Twist vel_cmd;
-    vel_cmd.linear.x = inVx;
-    vel_cmd.linear.y = inVy;
-    vel_cmd.angular.z = inTz;
+    vel_cmd.linear.x = VelFixed(inVx , vel_max);
+    vel_cmd.linear.y = VelFixed(inVy , vel_max);
+    vel_cmd.angular.z = VelFixed(inTz , vel_max);
     vel_pub.publish(vel_cmd);
 }
 

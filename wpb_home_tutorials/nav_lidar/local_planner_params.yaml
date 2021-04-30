@@ -1,0 +1,8 @@
+WpbhLocalPlanner:
+  max_vel_trans: 0.3
+  max_vel_rot: 0.9
+  acc_scale_trans: 1.5
+  acc_scale_rot: 0.5
+  goal_dist_tolerance: 0.1
+  goal_yaw_tolerance: 0.1
+  scan_topic: /scan

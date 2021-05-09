@@ -1,0 +1,30 @@
+<launch>
+
+  <arg name="model" default="$(find wpb_home_bringup)/urdf/wpb_home.urdf"/>
+  <arg name="gui" default="true" />
+  <arg name="rvizconfig" default="$(find wpb_home_tutorials)/rviz/kinect_tracker.rviz" />
+
+  <param name="robot_description" command="$(find xacro)/xacro $(arg model)" />
+  <param name="use_gui" value="$(arg gui)"/>
+
+  <node if="$(arg gui)" name="joint_state_publisher_gui" pkg="joint_state_publisher_gui" type="joint_state_publisher_gui" >
+    <rosparam command="load" file="$(find wpb_home_bringup)/config/wpb_home.yaml" />
+  </node>
+  <node unless="$(arg gui)" name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" >
+    <rosparam command="load" file="$(find wpb_home_bringup)/config/wpb_home.yaml" />
+  </node>
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true" />
+
+  <!--- Run Kinect -->
+  <!-- <include file="$(find kinect2_bridge)/launch/kinect2_bridge.launch" /> -->
+
+  <arg name="kinect_frame" default="kinect2_tracker" />
+  <node pkg="kinect2_tracker" type="kinect2_tracker_node" name="kinect2_tracker_node2">
+		<param name="tf_prefix" value="kinect" />
+    	<param name="relative_frame" value="/$(arg kinect_frame)" />
+	</node>
+	<node pkg="tf" type="static_transform_publisher" name="kinect_to_odom" 
+    args="0 0 0 3.14159 0 0 /kinect2_ir_optical_frame /$(arg kinect_frame) 50"/>
+
+</launch>

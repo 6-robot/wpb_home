@@ -1,0 +1,12 @@
+<launch>
+
+  <!-- Run wpb_home_sound_local -->
+  <node pkg="wpb_home_tutorials" type="wpb_home_sound_local" name="wpb_home_sound_local" output="screen"/>
+  
+  <!-- Run wpb_home core -->
+  <node pkg="wpb_home_bringup" type="wpb_home_core" name="wpb_home_core" output="screen">
+    <param name="serial_port" type="string" value="/dev/ftdi"/> 
+    <rosparam file="$(find wpb_home_bringup)/config/wpb_home.yaml" command="load" />
+  </node>
+
+</launch>

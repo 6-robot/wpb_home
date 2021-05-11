@@ -80,6 +80,8 @@ CWPB_Home_driver::CWPB_Home_driver()
 
 	fLinearAccLimit = 0.2;
 	fAngularAccLimit = 0.1;
+	nSndSrcAngle = 0;
+	bSndSrcUpdated = false;
 
 	//mani gripper
 	arManiGripperValue[0] = 0;
@@ -251,6 +253,12 @@ void CWPB_Home_driver::m_ParseFrame()
 				bFirstQuart = false;
 			}
 		}
+	}
+	if (m_ParseBuf[4] == 0x0a)	//声源定位模块
+	{
+		nSndSrcAngle = m_USFromChar(&m_ParseBuf[8]);
+		bSndSrcUpdated = true;
+		//printf("[CWPB_Home_driver]Sound source angle = %d\n",nSndSrcAngle);
 	}
 }
 
@@ -489,5 +497,12 @@ void CWPB_Home_driver::Output(int* inValue)
 			cOutputData = cOutputData << 1;
 	}
 	int nCmdLenght = GenCmd(0, 0x40, 0x06, 0x70, &cOutputData, 1);
+	Send(m_SendBuf, nCmdLenght);
+}
+
+void CWPB_Home_driver::QuerySoundLocal()
+{
+	//55 AA 40 00 0A 09 51
+	int nCmdLenght = GenCmd(0, 0x40, 0x0a, 0x09, NULL, 0);
 	Send(m_SendBuf, nCmdLenght);
 }

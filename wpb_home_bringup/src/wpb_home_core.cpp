@@ -44,6 +44,7 @@
 #include <sensor_msgs/JointState.h>
 #include <std_msgs/String.h>
 #include <std_msgs/Int32MultiArray.h>
+#include <std_msgs/UInt64.h>
 #include "driver/WPB_Home_driver.h"
 #include <math.h>
 
@@ -100,6 +101,11 @@ void CtrlCallback(const std_msgs::String::ConstPtr &msg)
     {
         printf("\n[电机码盘位置] 电机1= %d    电机2= %d    电机3= %d\n", m_wpb_home.arMotorPos[0], m_wpb_home.arMotorPos[1], m_wpb_home.arMotorPos[2]);
     }
+    nFindIndex = msg->data.find("sound local");
+    if( nFindIndex >= 0 )
+    {
+        m_wpb_home.QuerySoundLocal();
+    }
 }
 
 void OutputCallback(const std_msgs::Int32MultiArray::ConstPtr &msg)
@@ -135,6 +141,7 @@ int main(int argc, char** argv)
     ros::Publisher imu_pub = n.advertise<sensor_msgs::Imu >("imu/data_raw", 100);
     ros::Publisher ad_pub = n.advertise<std_msgs::Int32MultiArray>("/wpb_home/ad", 10);
     ros::Publisher input_pub = n.advertise<std_msgs::Int32MultiArray>("/wpb_home/input", 10);
+    ros::Publisher snd_src_pub = n.advertise<std_msgs::UInt64>("/wpb_home/sound_source", 10);
 
     for(int i=0;i<8;i++)
         arOutput[i] = 0;
@@ -373,6 +380,14 @@ int main(int argc, char** argv)
                 input_msg.data.push_back(m_wpb_home.arValIOInput[i]); 
             }
             input_pub.publish(input_msg);
+        }
+
+        if(m_wpb_home.bSndSrcUpdated == true)
+        {
+            std_msgs::UInt64 snd_src_msg;
+            snd_src_msg.data = m_wpb_home.nSndSrcAngle;
+            snd_src_pub.publish(snd_src_msg);
+            m_wpb_home.bSndSrcUpdated = false;
         }
 
         ros::spinOnce();

@@ -35,70 +35,33 @@
  @author     ZhangWanjie
  ********************************************************************/
 
-#include "SerialCom.h"
-#pragma once
+#include <ros/ros.h>
+#include <std_msgs/String.h>
+#include <std_msgs/UInt64.h>
 
-class CWPB_Home_driver : public CSerialCom
+void SndSrcCB(const std_msgs::UInt64::ConstPtr & msg)
 {
-public:
-    CWPB_Home_driver();
-    ~CWPB_Home_driver();
-    void Parse(unsigned char inData);
-	void Velocity(float inX, float inY, float inAngular);
-	void SendMotors(int inMotor1, int inMotor2, int inMotor3, int inMotor4);
-	float GetYaw();
-	void ManiPos(float inHeight, int inRaiseSpeed, float inGripper, int inGripperSpeed);
-	void ManiCmd(float inManiLift, float inLiftSpeed, float inManiGripper, float inGripperSpeed);
-	bool ManiArrived();
-	void Output(int* inValue);
-	void QuerySoundLocal();
-	bool bSndSrcUpdated;
-	int nSndSrcAngle;
-	float fLinearAccLimit;
-	float fAngularAccLimit;
+  int sound_source_angle = msg->data;
+  printf("声源方向角度 = %d \n",sound_source_angle);
+}
 
-	float arManiGripperValue[6];
-	float arManiGripperPos[6];
-	int nLastCmdLiftPos;
-	int nLastCmdGripperPos;
+int main(int argc, char** argv)
+{
+  ros::init(argc, argv, "wpb_home_sound_local");
 
-	int arValIOInput[4];
-	int arValIOOutput[8];
-	int arValAD[15];
-	int arMotorCurrent[10];
-	int arMotorPos[10];
-	int nParseCount;
+  ros::NodeHandle n;
+  ros::Subscriber snd_src_sub = n.subscribe("/wpb_home/sound_source", 10, SndSrcCB);
+  ros::Publisher cmd_pub = n.advertise<std_msgs::String>("/wpb_home/ctrl", 10);
 
-	float fQuatW;
-	float fQuatX;
-	float fQuatY;
-	float fQuatZ;
-	
-	float fGyroX;
-	float fGyroY;
-	float fGyroZ;
-	
-	float fAccX;
-	float fAccY;
-	float fAccZ;
+  ros::Rate r(1);
+  while(ros::ok())
+  {
+    std_msgs::String cmd_msg;
+    cmd_msg.data = "sound local";
+    cmd_pub.publish(cmd_msg);
+    ros::spinOnce();
+    r.sleep();
+  }
 
-	float fCurYaw;
-	float fFirstYaw;
-	bool bCalFirstYaw;
-
-protected:
-	unsigned char* m_SendBuf;
-	unsigned char m_ParseBuf[128];
-	int m_nRecvIndex;			//接收索引
-	unsigned char m_lastRecv;	//上一个字符
-	bool m_bFrameStart;			//帧解析开始
-	int m_nFrameLength;			//帧长度
-
-	void m_CalSendSum(unsigned char* pNewCmdBuf);
-
-	void m_ParseFrame();
-	void m_DisRecv();
-	int GenCmd(int inBuffOffset, int inDevID, int inModule, int inMethod, unsigned char* inData, int inDataLen);
-	void MotorCmd(int inMethod, int inID1, int inValue1, int inID2, int inValue2);
-	void MotorCmd2(int inMethod, int inID1, int inValue1_1, int inValue1_2, int inID2, int inValue2_1, int inValue2_2);
-};
+  return 0;
+}

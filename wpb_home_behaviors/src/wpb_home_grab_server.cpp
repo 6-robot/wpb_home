@@ -834,6 +834,7 @@ int main(int argc, char **argv)
             }
             nTimeDelayCounter ++;
             VelCmd(0,0,0);
+            mani_ctrl_pub.publish(mani_ctrl_msg);
             if(nTimeDelayCounter > 20*30)
             {
                 fMoveTargetX = fObjGrabX -0.55 + grab_forward_offset;
@@ -901,6 +902,7 @@ int main(int argc, char **argv)
             }
             nTimeDelayCounter++;
             VelCmd(0,0,0);
+            mani_ctrl_pub.publish(mani_ctrl_msg);
             if(nTimeDelayCounter > 3*30)
             {
                 fMoveTargetX = -(fTargetGrabX-0.4);

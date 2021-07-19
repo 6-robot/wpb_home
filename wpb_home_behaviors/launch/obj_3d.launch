@@ -5,6 +5,7 @@
 
   <node pkg="wpb_home_behaviors" type="wpb_home_objects_3d" name="wpb_home_objects_3d" output="screen">
     <rosparam file="$(find wpb_home_bringup)/config/wpb_home.yaml" command="load" />
+    <param name="start" type="bool" value="true"/> 
   </node>
 
   <node pkg="wpb_home_behaviors" type="wpb_home_grab_action" name="wpb_home_grab_action">

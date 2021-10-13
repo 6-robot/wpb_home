@@ -5,7 +5,7 @@
   <arg name="gui" default="true" />
   <arg name="rvizconfig" default="$(find wpb_home_tutorials)/rviz/mobile_manipulation.rviz" />
 
-  <param name="robot_description" command="$(find xacro)/xacro.py $(arg model)" />
+  <param name="robot_description" command="$(find xacro)/xacro $(arg model)" />
   <param name="use_gui" value="$(arg gui)"/>
 
   <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>

@@ -57,6 +57,7 @@ add_message_files(
   FILES
   Coord.msg
   Rect.msg
+  Human_pose.msg
  )
 
 ## Generate services in the 'srv' folder

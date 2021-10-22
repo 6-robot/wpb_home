@@ -382,6 +382,14 @@ target_link_libraries(wpb_home_pointcloud_cluster
   ${catkin_LIBRARIES}
 )
 
+add_executable(pointcloud_pixel
+  src/pointcloud_pixel.cpp
+)
+add_dependencies(pointcloud_pixel ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(pointcloud_pixel
+  ${catkin_LIBRARIES}
+)
+
 add_executable(wpb_home_behavior_node
   src/wpb_home_behavior_node.cpp
 )

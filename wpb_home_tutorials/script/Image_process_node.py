@@ -10,13 +10,15 @@ import math
 _cv_bridge = CvBridge()
 
 depth = None
-
 lenth = 0.6
-x = 212
-y = 216
+
+pixel_x = 212
+norm_pixel_x = 0
+
+pixel_y = 216
 z = 1000
 d_angle = 0
-lamda = 0.1
+lamda = 0.2
 tan = 1 / lenth
 alpha = 10
 
@@ -41,35 +43,38 @@ def media_pipe(image):
 
 
 def getPositionCallback(image_msg):
-    global x, y, z
+    global pixel_x, norm_pixel_x, pixel_y, z, d_angle
     assert isinstance(image_msg, Image)
     # transfer to numpy array
     image = _cv_bridge.imgmsg_to_cv2(image_msg, desired_encoding="passthrough")
     key_points = media_pipe(image)
 
     if key_points is not None:
-        x = (1 - lamda) * key_points[0] + lamda * x
-        y = (1 - lamda) * key_points[1] + lamda * y
-        z = (1 - lamda) * get_depth(x, y) + lamda * z
-        if math.isnan(x) or math.isnan(y):
+        pixel_x = (1 - lamda) * key_points[0] + lamda * pixel_x
+        pixel_y = (1 - lamda) * key_points[1] + lamda * pixel_y - 20
+        z = (1 - lamda) * get_depth(pixel_x, pixel_y) + lamda * z
+        if math.isnan(pixel_x) or math.isnan(pixel_y):
             return
-        x -= 212
-        y -= 256
-        y -= 20
-        z_actual = z.item() / 1000
-        d_angle = - math.atan(x / 256 / tan) if abs(x) > 0.01 else 0
-
-        x = x / 256 * z_actual / tan
-        pose_msg = Coord()
-        pose_msg.name = 'human'
-        pose_msg.x = [x]
-        pose_msg.y = [y]
-        pose_msg.z = [z_actual  ]
-        pose_msg.probability = [d_angle]
-        print(pose_msg)
-        # rospy.loginfo("Publsh person message[%s]", pose_msg.name)
-        human_point_pub.publish(pose_msg)
-        rate.sleep()
+    elif norm_pixel_x > 180:
+        pixel_x = (1 - lamda) * 212 + lamda * pixel_x
+    elif norm_pixel_x < -180:
+        pixel_x = (1 - lamda) * 212 + lamda * pixel_x
+    else:
+        return
+    z_actual = z.item() / 1000
+    norm_pixel_x = pixel_x - 212
+    d_angle = - math.atan(norm_pixel_x / 256 / tan) if abs(norm_pixel_x) > 10 else 0
+    x = (norm_pixel_x - 212) / 256 * z_actual / tan
+    pose_msg = Coord()
+    pose_msg.name = 'human'
+    pose_msg.x = [x]
+    # pose_msg.y = [y]
+    pose_msg.z = [z_actual]
+    pose_msg.probability = [d_angle]
+    print(pose_msg)
+    # rospy.loginfo("Publsh person message[%s]", pose_msg.name)
+    human_point_pub.publish(pose_msg)
+    rate.sleep()
 
 
 def show(image_msg):

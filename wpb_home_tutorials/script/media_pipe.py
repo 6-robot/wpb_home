@@ -4,7 +4,7 @@ import time
 
 mp_drawing = mp.solutions.drawing_utils
 mp_pose = mp.solutions.pose
-points = [0]
+points = [11, 12]
 
 
 def get_points(image, show=True):
@@ -37,10 +37,9 @@ def get_points(image, show=True):
 
         if results.pose_landmarks is not None:
             key_points = [0, 0, 0, 0]
+            key_points[0] += results.pose_landmarks.landmark[0].x
             for i in points:
-                key_points[0] += results.pose_landmarks.landmark[i].x
                 key_points[1] += results.pose_landmarks.landmark[i].y
-            key_points[0] /= len(points)
             key_points[1] /= len(points)
         else:
             key_points = None

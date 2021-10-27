@@ -59,6 +59,9 @@ def getPositionCallback(image_msg):
         pixel_x = (1 - lamda) * 212 + lamda * pixel_x
     elif norm_pixel_x < -180:
         pixel_x = (1 - lamda) * 212 + lamda * pixel_x
+    elif z < 800:
+        pixel_x = 212
+        z = 500
     else:
         return
     z_actual = z.item() / 1000

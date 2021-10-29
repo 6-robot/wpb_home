@@ -7,7 +7,10 @@
   <param name="robot_description" command="$(find xacro)/xacro $(arg model)" />
   <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
 
-  <node pkg="wpb_home_behaviors" type="wpb_home_objects_3d" name="wpb_home_objects_3d" output="screen">
+  <!-- Run wpb_home_grab_middle node -->
+  <node name="wpb_home_grab_middle" pkg="wpb_home_tutorials" type="wpb_home_grab_middle"  output="screen"/>
+
+  <node pkg="wpb_home_behaviors" type="wpb_home_objects_3d" name="wpb_home_objects_3d">
     <rosparam file="$(find wpb_home_bringup)/config/wpb_home.yaml" command="load" />
   </node>
 
@@ -110,7 +113,7 @@
 
   <!--************************ end ************************-->
   <arg name="gui" default="true" />
-    <arg name="rvizconfig" default="$(find wpb_home_behaviors)/rviz/grab.rviz" />
-    <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true" />
+  <arg name="rvizconfig" default="$(find wpb_home_behaviors)/rviz/grab.rviz" />
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true" />
 
 </launch>

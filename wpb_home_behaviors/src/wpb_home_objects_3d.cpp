@@ -199,7 +199,7 @@ void ProcCloudCB(const sensor_msgs::PointCloud2 &input)
         ROS_INFO("%d - plana: %d points. height =%.2f" ,i, plane->width * plane->height,plane_height);
         if(plane_height > 0.6 && plane_height < 0.85) 
         {
-            ROS_WARN("Final plane: %d points. height =%.2f" , plane->width * plane->height,plane_height);
+            ROS_INFO("Final plane: %d points. height =%.2f" , plane->width * plane->height,plane_height);
             break;
         }
 
@@ -234,7 +234,7 @@ void ProcCloudCB(const sensor_msgs::PointCloud2 &input)
             pcl::ExtractPolygonalPrismData<pcl::PointXYZRGB> prism;
             prism.setInputCloud(cloud_source_ptr);
             prism.setInputPlanarHull(convexHull);
-            prism.setHeightLimits(-0.30, -0.03); //height limit objects lying on the plane
+            prism.setHeightLimits(-0.20, -0.03); //height limit objects lying on the plane
             pcl::PointIndices::Ptr objectIndices(new pcl::PointIndices);
 
             // Get and show all points retrieved by the hull.

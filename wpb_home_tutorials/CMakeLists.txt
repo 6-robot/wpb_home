@@ -429,3 +429,11 @@ add_dependencies(wpb_home_sound_local ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catk
 target_link_libraries(wpb_home_sound_local
   ${catkin_LIBRARIES}
 )
+
+add_executable(wpb_home_grab_middle
+  src/wpb_home_grab_middle.cpp
+)
+add_dependencies(wpb_home_grab_middle ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(wpb_home_grab_middle
+  ${catkin_LIBRARIES}
+)

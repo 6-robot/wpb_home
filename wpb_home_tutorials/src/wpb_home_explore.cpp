@@ -55,7 +55,7 @@ static ros::ServiceClient cliGetWPName;
 static waterplus_map_tools::GetWaypointByName srvName;
 
 #define ROOM_SIZE 5
-static int have_rubbish[ROOM_SIZE];
+static int have_rubbish[ROOM_SIZE] = {-1, -1, -1, -1, -1};
 static int room_index;
 static ros::Publisher vel_pub;
 
@@ -78,7 +78,14 @@ bool explore_start(wpb_home_tutorials::Explore::Request &req, wpb_home_tutorials
     //random choice the room
     for (room_index = 0; room_index < ROOM_SIZE; room_index++)
     {
-        // go to the room_index
+        if (have_rubbish[room_index] == 0)
+        {
+            ROS_WARN("Skip %d room.", room_index);
+
+            continue;
+        }
+        ROS_INFO("Exploration in the %d room.", room_index);
+
         strGoto = arWaypoint[room_index];
         std::string name = srvName.response.name;
         float x = srvName.response.pose.position.x;
@@ -93,37 +100,41 @@ bool explore_start(wpb_home_tutorials::Explore::Request &req, wpb_home_tutorials
             goal.target_pose.header.frame_id = "map";
             goal.target_pose.header.stamp = ros::Time::now();
             goal.target_pose.pose = srvName.response.pose;
-            ac.sendGoal(goal);
-            ac.waitForResult();
-            if (ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
-            {
-            }
-            else
+            // ac.sendGoal(goal);
+            // ac.waitForResult();
+            // if (!(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED))
+            if (!true)
             {
                 // ROS_INFO("Failed to get to %s ...",strGoto.c_str() );
                 continue;
             }
-
-            // after entering, start timer
-            while (!true)
+            else
             {
-                if (have_rubbish[room_index] > 0)
+                ros::Time begin = ros::Time::now();
+                // after entering, start timer
+                while ((ros::Time::now() - begin).toSec() < 3)
                 {
-
-                    return true;
+                    sleep(1);
+                    if (have_rubbish[room_index] > 0)
+                    {
+                        res.result == true;
+                        return true;
+                    }
                 }
-                // quit the room if out of time
+                ROS_INFO("Not Found in the %d room, goint to the next one...", room_index);
+                have_rubbish[room_index] = 0;
             }
         }
     }
+    if (have_rubbish[ROOM_SIZE] == 0)
+        res.result == false;
 
     return true;
 }
 
 bool explore_stop(wpb_home_tutorials::Explore::Request &req, wpb_home_tutorials::Explore::Response &res)
 {
-    float fThredhold = (float)req.thredhold;
-    ROS_WARN("[follow_stop] thredhold = %.2f", fThredhold);
+    ROS_WARN("[explore stop]");
     geometry_msgs::Twist vel_cmd;
     vel_cmd.linear.x = 0;
     vel_cmd.linear.y = 0;
@@ -134,9 +145,9 @@ bool explore_stop(wpb_home_tutorials::Explore::Request &req, wpb_home_tutorials:
     vel_pub.publish(vel_cmd);
     return true;
 }
-void find_rubbish_callback(const wpb_home_behaviors::Coord::ConstPtr &input)
+void find_rubbish_callback(const std_msgs::String::ConstPtr &input)
 {
-    have_rubbish[room_index]=1;
+    have_rubbish[room_index] = 1;
 }
 
 int main(int argc, char **argv)
@@ -149,9 +160,10 @@ int main(int argc, char **argv)
     cliGetWPName = n.serviceClient<waterplus_map_tools::GetWaypointByName>("/waterplus/get_waypoint_name");
     spk_pub = n.advertise<sound_play::SoundRequest>("/robotsound", 20);
 
-    ROS_INFO("[main] wpb_home_path_plan");
+    ROS_INFO("[main] wpb_home_explore");
     ros::Rate r(10);
-    ros::Subscriber sub_rubbish = n.subscribe<wpb_home_behaviors::Coord>("/rubbish", 1, find_rubbish_callback);
+    // ros::Subscriber sub_rubbish = n.subscribe<wpb_home_behaviors::Coord>("/rubbish", 1, find_rubbish_callback);
+    ros::Subscriber sub_rubbish = n.subscribe<std_msgs::String>("/rubbish", 1, find_rubbish_callback);
     ros::ServiceServer start_svr = n.advertiseService("wpb_home_explore/start", explore_start);
     ros::ServiceServer stop_svr = n.advertiseService("wpb_home_explore/stop", explore_stop);
 

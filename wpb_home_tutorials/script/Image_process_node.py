@@ -1,3 +1,6 @@
+#!/home/radiance/miniconda3/envs/ros/bin/python
+
+
 import cv2
 import numpy as np
 from media_pipe import get_points
@@ -130,3 +133,17 @@ if __name__ == '__main__':
     #         # rospy.loginfo("Publsh person message[%s]", pose_msg.name)
 
     rospy.spin()
+
+
+
+'''
+
+[ERROR] [1635423817.369692]: bad callback: <function getPositionCallback at 0x7fd07909a3a0>
+Traceback (most recent call last):
+  File "/opt/ros/noetic/lib/python3/dist-packages/rospy/topics.py", line 750, in _invoke_callback
+    cb(msg)
+  File "/home/radiance/catkin_ws/src/wpb_home/wpb_home_tutorials/script/Image_process_node.py", line 70, in getPositionCallback
+    z_actual = z.item() / 1000
+AttributeError: 'int' object has no attribute 'item'
+
+'''

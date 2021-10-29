@@ -131,4 +131,8 @@
     <param name="queue_size" type="int" value="$(arg queue_size)"/>
   </node>
 
+<!-- sd Image_process -->
+  <node name="Image_process" pkg="wpb_home_tutorials" type="Image_process_node.py">
+  </node>
+
 </launch>

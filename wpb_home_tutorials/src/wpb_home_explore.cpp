@@ -54,8 +54,9 @@ static ros::Publisher spk_pub;
 static ros::ServiceClient cliGetWPName;
 static waterplus_map_tools::GetWaypointByName srvName;
 
+std::vector<int> have_rubbish = {-1, -1, -1, -1, -1};
 #define ROOM_SIZE 5
-static int have_rubbish[ROOM_SIZE] = {-1, -1, -1, -1, -1};
+// static int have_rubbish[ROOM_SIZE] = {-1, -1, -1, -1, -1};
 static int room_index;
 static ros::Publisher vel_pub;
 
@@ -81,7 +82,6 @@ bool explore_start(wpb_home_tutorials::Explore::Request &req, wpb_home_tutorials
         if (have_rubbish[room_index] == 0)
         {
             ROS_WARN("Skip %d room.", room_index);
-
             continue;
         }
         ROS_INFO("Exploration in the %d room.", room_index);
@@ -114,9 +114,11 @@ bool explore_start(wpb_home_tutorials::Explore::Request &req, wpb_home_tutorials
                 // after entering, start timer
                 while ((ros::Time::now() - begin).toSec() < 3)
                 {
-                    sleep(1);
+                    ros::Duration(1).sleep();
+                    ros::param::get("/rubbish_topic", have_rubbish);
                     if (have_rubbish[room_index] > 0)
                     {
+                        ROS_INFO("Detecting rubbish in %d room.", room_index);
                         res.result == true;
                         return true;
                     }
@@ -145,25 +147,29 @@ bool explore_stop(wpb_home_tutorials::Explore::Request &req, wpb_home_tutorials:
     vel_pub.publish(vel_cmd);
     return true;
 }
-void find_rubbish_callback(const std_msgs::String::ConstPtr &input)
-{
-    have_rubbish[room_index] = 1;
-}
+// void find_rubbish_callback(const std_msgs::String::ConstPtr &input)
+// {
+//     ROS_INFO("Recived Message");
+//     have_rubbish[room_index] = 1;
+//     return;
+// }
 
 int main(int argc, char **argv)
 {
     ros::init(argc, argv, "wpb_home_explore");
-    Init_waypoints();
     // action_manager.Init();
-
     ros::NodeHandle n;
+
     cliGetWPName = n.serviceClient<waterplus_map_tools::GetWaypointByName>("/waterplus/get_waypoint_name");
     spk_pub = n.advertise<sound_play::SoundRequest>("/robotsound", 20);
 
-    ROS_INFO("[main] wpb_home_explore");
+    ROS_INFO("[main] this line");
+    n.setParam("rubbish_topic", have_rubbish);
+    Init_waypoints();
+
     ros::Rate r(10);
-    // ros::Subscriber sub_rubbish = n.subscribe<wpb_home_behaviors::Coord>("/rubbish", 1, find_rubbish_callback);
-    ros::Subscriber sub_rubbish = n.subscribe<std_msgs::String>("/rubbish", 1, find_rubbish_callback);
+    // ros::Subscriber sub_rubbish = n.subscribe("/rubbish_topic", 1, find_rubbish_callback);
+
     ros::ServiceServer start_svr = n.advertiseService("wpb_home_explore/start", explore_start);
     ros::ServiceServer stop_svr = n.advertiseService("wpb_home_explore/stop", explore_stop);
 

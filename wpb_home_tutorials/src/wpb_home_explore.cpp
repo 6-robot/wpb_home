@@ -57,7 +57,7 @@ static waterplus_map_tools::GetWaypointByName srvName;
 std::vector<int> have_rubbish = {-1, -1, -1, -1, -1};
 #define ROOM_SIZE 5
 // static int have_rubbish[ROOM_SIZE] = {-1, -1, -1, -1, -1};
-static int room_index;
+static int room_index = 0;
 static ros::Publisher vel_pub;
 
 // 初始化航点遍历脚本
@@ -76,32 +76,25 @@ string strGoto;
 bool explore_start(wpb_home_tutorials::Explore::Request &req, wpb_home_tutorials::Explore::Response &res)
 {
     ROS_INFO("Start Exploration");
-    //random choice the room
-    for (room_index = 0; room_index < ROOM_SIZE; room_index++)
+    while (true)
     {
-        if (have_rubbish[room_index] == 0)
-        {
-            ROS_WARN("Skip %d room.", room_index);
-            continue;
-        }
-        ROS_INFO("Exploration in the %d room.", room_index);
-
+        ROS_INFO("Go to %d room.", room_index);
         strGoto = arWaypoint[room_index];
-        std::string name = srvName.response.name;
-        float x = srvName.response.pose.position.x;
-        float y = srvName.response.pose.position.y;
 
         MoveBaseClient ac("move_base", true);
         if (!ac.waitForServer(ros::Duration(5.0)))
             ROS_INFO("The move_base action server is no running. action abort...");
         else
         {
+            std::string name = srvName.response.name;
+            float x = srvName.response.pose.position.x;
+            float y = srvName.response.pose.position.y;
             move_base_msgs::MoveBaseGoal goal;
             goal.target_pose.header.frame_id = "map";
             goal.target_pose.header.stamp = ros::Time::now();
             goal.target_pose.pose = srvName.response.pose;
-            // ac.sendGoal(goal);
-            // ac.waitForResult();
+            ac.sendGoal(goal);
+            ac.waitForResult();
             // if (!(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED))
             if (!true)
             {
@@ -110,6 +103,7 @@ bool explore_start(wpb_home_tutorials::Explore::Request &req, wpb_home_tutorials
             }
             else
             {
+                ROS_INFO("Exploration in the %d room.", room_index);
                 ros::Time begin = ros::Time::now();
                 // after entering, start timer
                 while ((ros::Time::now() - begin).toSec() < 3)
@@ -119,17 +113,19 @@ bool explore_start(wpb_home_tutorials::Explore::Request &req, wpb_home_tutorials
                     if (have_rubbish[room_index] > 0)
                     {
                         ROS_INFO("Detecting rubbish in %d room.", room_index);
-                        res.result == true;
+                        res.result = true;
                         return true;
                     }
                 }
+                ros::param::set("/rubbish_topic", have_rubbish);
                 ROS_INFO("Not Found in the %d room, goint to the next one...", room_index);
                 have_rubbish[room_index] = 0;
             }
         }
+        room_index = (room_index + 1) % ROOM_SIZE;
     }
-    if (have_rubbish[ROOM_SIZE] == 0)
-        res.result == false;
+    // if (have_rubbish[ROOM_SIZE] == 0)
+    //     res.result == false;
 
     return true;
 }
@@ -147,12 +143,6 @@ bool explore_stop(wpb_home_tutorials::Explore::Request &req, wpb_home_tutorials:
     vel_pub.publish(vel_cmd);
     return true;
 }
-// void find_rubbish_callback(const std_msgs::String::ConstPtr &input)
-// {
-//     ROS_INFO("Recived Message");
-//     have_rubbish[room_index] = 1;
-//     return;
-// }
 
 int main(int argc, char **argv)
 {

@@ -43,6 +43,9 @@
 #include <move_base_msgs/MoveBaseAction.h>
 #include <actionlib/client/simple_action_client.h>
 #include <waterplus_map_tools/GetWaypointByName.h>
+#include <waterplus_map_tools/GetNumOfWaypoints.h>
+#include <waterplus_map_tools/GetWaypointByIndex.h>
+#include <waterplus_map_tools/GetWaypointByName.h>
 #include <geometry_msgs/Twist.h>
 #include <wpb_home_behaviors/Coord.h>
 
@@ -51,26 +54,20 @@ using namespace std;
 typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
 static ros::Publisher spk_pub;
 // static CActionManager action_manager;
-static ros::ServiceClient cliGetWPName;
+static ros::ServiceClient cliGetWPIndex;
+static ros::ServiceClient cliGetNum;
 static waterplus_map_tools::GetWaypointByName srvName;
+static waterplus_map_tools::GetWaypointByIndex srvI;
 
 std::vector<int> have_rubbish = {-1, -1, -1, -1, -1};
-#define ROOM_SIZE 5
-// static int have_rubbish[ROOM_SIZE] = {-1, -1, -1, -1, -1};
+
+// #define ROOM_SIZE 5
+static int ROOM_SIZE;
+
 static int room_index = 0;
 static ros::Publisher vel_pub;
 
-// 初始化航点遍历脚本
 static vector<string> arWaypoint;
-
-static void Init_waypoints()
-{
-    arWaypoint.push_back("1");
-    arWaypoint.push_back("2");
-    arWaypoint.push_back("3");
-    arWaypoint.push_back("4");
-    arWaypoint.push_back("5");
-}
 
 string strGoto;
 bool explore_start(wpb_home_tutorials::Explore::Request &req, wpb_home_tutorials::Explore::Response &res)
@@ -78,32 +75,45 @@ bool explore_start(wpb_home_tutorials::Explore::Request &req, wpb_home_tutorials
     ROS_INFO("Start Exploration");
     while (true)
     {
-        ROS_INFO("Go to %d room.", room_index);
-        strGoto = arWaypoint[room_index];
+        // if (have_rubbish[room_index] == 0)
+        // {
+        //     ROS_WARN("Skip %d room.", room_index);
+        //     continue;
+        // }
+        move_base_msgs::MoveBaseGoal goal;
 
         MoveBaseClient ac("move_base", true);
         if (!ac.waitForServer(ros::Duration(5.0)))
             ROS_INFO("The move_base action server is no running. action abort...");
         else
         {
-            std::string name = srvName.response.name;
-            float x = srvName.response.pose.position.x;
-            float y = srvName.response.pose.position.y;
-            move_base_msgs::MoveBaseGoal goal;
+            srvI.request.index = room_index;
+
+            if (cliGetWPIndex.call(srvI))
+            {
+                std::string name = srvI.response.name;
+                float x = srvI.response.pose.position.x;
+                float y = srvI.response.pose.position.y;
+                ROS_INFO("Go to %d room.", room_index);
+            }
+            else
+            {
+                ROS_ERROR("Failed to call service get_wp_index");
+            }
             goal.target_pose.header.frame_id = "map";
             goal.target_pose.header.stamp = ros::Time::now();
-            goal.target_pose.pose = srvName.response.pose;
+            goal.target_pose.pose = srvI.response.pose;
             ac.sendGoal(goal);
             ac.waitForResult();
-            // if (!(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED))
-            if (!true)
+            if (!(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED))
+            // if (!true)
             {
-                // ROS_INFO("Failed to get to %s ...",strGoto.c_str() );
+                ROS_INFO("Failed to get to %s ...",strGoto.c_str() );
                 continue;
             }
             else
             {
-                ROS_INFO("Exploration in the %d room.", room_index);
+                ROS_INFO("Arrived and Exploration in the %d room.", room_index);
                 ros::Time begin = ros::Time::now();
                 // after entering, start timer
                 while ((ros::Time::now() - begin).toSec() < 3)
@@ -150,12 +160,21 @@ int main(int argc, char **argv)
     // action_manager.Init();
     ros::NodeHandle n;
 
-    cliGetWPName = n.serviceClient<waterplus_map_tools::GetWaypointByName>("/waterplus/get_waypoint_name");
+    // cliGetWPName = n.serviceClient<waterplus_map_tools::GetWaypointByName>("/waterplus/get_waypoint_name");
+    cliGetNum = n.serviceClient<waterplus_map_tools::GetNumOfWaypoints>("/waterplus/get_num_waypoint");
+    cliGetWPIndex = n.serviceClient<waterplus_map_tools::GetWaypointByIndex>("/waterplus/get_waypoint_index");
     spk_pub = n.advertise<sound_play::SoundRequest>("/robotsound", 20);
-
-    ROS_INFO("[main] this line");
+    waterplus_map_tools::GetNumOfWaypoints srvNum;
+    if (cliGetNum.call(srvNum))
+    {
+        ROS_INFO("ROOM_SIZE = %d", (int)srvNum.response.num);
+        ROOM_SIZE = (int)srvNum.response.num;
+    }
+    else
+    {
+        ROS_ERROR("Failed to call service get_num_waypoints");
+    }
     n.setParam("rubbish_topic", have_rubbish);
-    Init_waypoints();
 
     ros::Rate r(10);
     // ros::Subscriber sub_rubbish = n.subscribe("/rubbish_topic", 1, find_rubbish_callback);

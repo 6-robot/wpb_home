@@ -37,7 +37,7 @@
 #include <ros/ros.h>
 #include <std_msgs/String.h>
 #include <vector>
-#include "wpb_home_tutorials/Explore.h"
+#include "wpb_home_tutorials/Near.h"
 // #include <wpb_home_apps/action_manager.h>
 #include <sound_play/SoundRequest.h>
 #include <move_base_msgs/MoveBaseAction.h>
@@ -58,11 +58,15 @@ static ros::ServiceClient cliGetWPIndex;
 static ros::ServiceClient cliGetNum;
 static waterplus_map_tools::GetWaypointByName srvName;
 static waterplus_map_tools::GetWaypointByIndex srvI;
-
-std::vector<int> have_rubbish = {-1, -1, -1, -1, -1};
+static float human_x = 0;
+static float human_y = 0;
+static float max_linear_vel = 0.5;
+static float max_angular_vel = 1.5;
 
 // #define ROOM_SIZE 5
 static int ROOM_SIZE;
+static bool bActive = false;
+static int naerSuccess = 0;
 
 static int room_index = 0;
 static ros::Publisher vel_pub;
@@ -70,79 +74,27 @@ static ros::Publisher vel_pub;
 static vector<string> arWaypoint;
 
 string strGoto;
-bool explore_start(wpb_home_tutorials::Explore::Request &req, wpb_home_tutorials::Explore::Response &res)
+bool near_start(wpb_home_tutorials::Near::Request &req, wpb_home_tutorials::Near::Response &res)
 {
-    ROS_INFO("Start Exploration");
-    while (true)
+    naerSuccess = 0;
+    float fThredhold = (float)req.thredhold;
+    ROS_INFO("Near_start");
+    bActive = true;
+    while (naerSuccess == 0)
     {
-        // if (have_rubbish[room_index] == 0)
-        // {
-        //     ROS_WARN("Skip %d room.", room_index);
-        //     continue;
-        // }
-        move_base_msgs::MoveBaseGoal goal;
-
-        MoveBaseClient ac("move_base", true);
-        if (!ac.waitForServer(ros::Duration(5.0)))
-            ROS_INFO("The move_base action server is no running. action abort...");
-        else
-        {
-            srvI.request.index = room_index;
-
-            if (cliGetWPIndex.call(srvI))
-            {
-                std::string name = srvI.response.name;
-                float x = srvI.response.pose.position.x;
-                float y = srvI.response.pose.position.y;
-                ROS_INFO("Go to %d room.", room_index);
-            }
-            else
-            {
-                ROS_ERROR("Failed to call service get_wp_index");
-            }
-            goal.target_pose.header.frame_id = "map";
-            goal.target_pose.header.stamp = ros::Time::now();
-            goal.target_pose.pose = srvI.response.pose;
-            ac.sendGoal(goal);
-            ac.waitForResult();
-            if (!(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED))
-            {
-                ROS_INFO("Failed to get to %s ...",strGoto.c_str() );
-                continue;
-            }
-            else
-            {
-                ROS_INFO("Arrived and Exploration in the %d room.", room_index);
-                ros::Time begin = ros::Time::now();
-                // after entering, start timer
-                while ((ros::Time::now() - begin).toSec() < 3)
-                {
-                    ros::Duration(1).sleep();
-                    ros::param::get("/rubbish_topic", have_rubbish);
-                    if (have_rubbish[room_index] > 0)
-                    {
-                        ROS_INFO("Detecting rubbish in %d room.", room_index);
-                        res.result = true;
-                        return true;
-                    }
-                }
-                ros::param::set("/rubbish_topic", have_rubbish);
-                ROS_INFO("Not Found in the %d room, goint to the next one...", room_index);
-                have_rubbish[room_index] = 0;
-            }
-        }
-        room_index = (room_index + 1) % ROOM_SIZE;
     }
-    // if (have_rubbish[ROOM_SIZE] == 0)
-    //     res.result == false;
-
+    if (naerSuccess == 0)
+        ROS_ERROR("naerSuccess == 0");
+    assert(naerSuccess != 0);
+    res.result = naerSuccess;
     return true;
 }
 
-bool explore_stop(wpb_home_tutorials::Explore::Request &req, wpb_home_tutorials::Explore::Response &res)
+bool near_stop(wpb_home_tutorials::Near::Request &req, wpb_home_tutorials::Near::Response &res)
 {
-    ROS_WARN("[explore stop]");
+    ROS_WARN("[Near stop]");
     geometry_msgs::Twist vel_cmd;
+    bActive = false;
     vel_cmd.linear.x = 0;
     vel_cmd.linear.y = 0;
     vel_cmd.linear.z = 0;
@@ -153,33 +105,35 @@ bool explore_stop(wpb_home_tutorials::Explore::Request &req, wpb_home_tutorials:
     return true;
 }
 
+void GotoRubbish(const wpb_home_behaviors::Coord::ConstPtr &msg)
+{
+    if (bActive == true)
+    {
+        
+
+
+
+    }
+    naerSuccess = 1;
+
+}
+
 int main(int argc, char **argv)
 {
-    ros::init(argc, argv, "wpb_home_explore");
+    ros::init(argc, argv, "wpb_home_near");
     // action_manager.Init();
     ros::NodeHandle n;
 
-    // cliGetWPName = n.serviceClient<waterplus_map_tools::GetWaypointByName>("/waterplus/get_waypoint_name");
-    cliGetNum = n.serviceClient<waterplus_map_tools::GetNumOfWaypoints>("/waterplus/get_num_waypoint");
-    cliGetWPIndex = n.serviceClient<waterplus_map_tools::GetWaypointByIndex>("/waterplus/get_waypoint_index");
+    ros::Subscriber pose_sub = n.subscribe<wpb_home_behaviors::Coord>("/Objects_detected", 1, GotoRubbish);
+
     spk_pub = n.advertise<sound_play::SoundRequest>("/robotsound", 20);
     waterplus_map_tools::GetNumOfWaypoints srvNum;
-    if (cliGetNum.call(srvNum))
-    {
-        ROS_INFO("ROOM_SIZE = %d", (int)srvNum.response.num);
-        ROOM_SIZE = (int)srvNum.response.num;
-    }
-    else
-    {
-        ROS_ERROR("Failed to call service get_num_waypoints");
-    }
-    n.setParam("rubbish_topic", have_rubbish);
 
     ros::Rate r(10);
     // ros::Subscriber sub_rubbish = n.subscribe("/rubbish_topic", 1, find_rubbish_callback);
 
-    ros::ServiceServer start_svr = n.advertiseService("wpb_home_explore/start", explore_start);
-    ros::ServiceServer stop_svr = n.advertiseService("wpb_home_explore/stop", explore_stop);
+    ros::ServiceServer start_svr = n.advertiseService("wpb_home_near/start", near_start);
+    ros::ServiceServer stop_svr = n.advertiseService("wpb_home_near/stop", near_stop);
 
     vel_pub = n.advertise<geometry_msgs::Twist>("/cmd_vel", 10);
 

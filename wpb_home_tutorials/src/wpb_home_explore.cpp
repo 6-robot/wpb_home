@@ -92,6 +92,12 @@ bool explore_start(wpb_home_tutorials::Explore::Request &req, wpb_home_tutorials
             if (cliGetWPIndex.call(srvI))
             {
                 std::string name = srvI.response.name;
+                if (name == "final")
+                {
+                    ROS_INFO("Ignoring the final destination...");
+                    room_index = (room_index + 1) % ROOM_SIZE;
+                    continue;
+                }
                 float x = srvI.response.pose.position.x;
                 float y = srvI.response.pose.position.y;
                 ROS_INFO("Go to %d room.", room_index);

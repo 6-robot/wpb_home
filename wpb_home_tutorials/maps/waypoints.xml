@@ -1,0 +1,32 @@
+<Waterplus>
+    <Waypoint>
+        <Name>1</Name>
+        <Pos_x>1.80673</Pos_x>
+        <Pos_y>-0.820778</Pos_y>
+        <Pos_z>0</Pos_z>
+        <Ori_x>0</Ori_x>
+        <Ori_y>0</Ori_y>
+        <Ori_z>0.462369</Ori_z>
+        <Ori_w>0.886688</Ori_w>
+    </Waypoint>
+    <Waypoint>
+        <Name>2</Name>
+        <Pos_x>3.09164</Pos_x>
+        <Pos_y>0.911702</Pos_y>
+        <Pos_z>0</Pos_z>
+        <Ori_x>0</Ori_x>
+        <Ori_y>0</Ori_y>
+        <Ori_z>-0.738501</Ori_z>
+        <Ori_w>0.674253</Ori_w>
+    </Waypoint>
+    <Waypoint>
+        <Name>final</Name>
+        <Pos_x>1.19916</Pos_x>
+        <Pos_y>0.450174</Pos_y>
+        <Pos_z>0</Pos_z>
+        <Ori_x>0</Ori_x>
+        <Ori_y>0</Ori_y>
+        <Ori_z>-0.0775949</Ori_z>
+        <Ori_w>0.996985</Ori_w>
+    </Waypoint>
+</Waterplus>

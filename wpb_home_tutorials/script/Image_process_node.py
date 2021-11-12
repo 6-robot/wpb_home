@@ -3,7 +3,7 @@
 
 import cv2
 import numpy as np
-from media_pipe import get_points
+from media_pipe import *
 import rospy
 from cv_bridge import CvBridge
 from sensor_msgs.msg import Image

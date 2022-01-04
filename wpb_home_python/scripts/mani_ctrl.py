@@ -15,7 +15,6 @@ if __name__ == "__main__":
     msg.name = ['lift', 'gripper']
     msg.position = [ 0 , 0 ]
     msg.velocity = [ 0 , 0 ]
-    rospy.loginfo("bef")
     # 延时三秒，让后台的话题发布操作能够完成
     d = rospy.Duration(3.0)
     rospy.sleep(d)

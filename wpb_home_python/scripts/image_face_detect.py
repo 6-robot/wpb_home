@@ -13,7 +13,7 @@ def cbImage(msg):
     #转换为灰度图
     gray_img=cv2.cvtColor(cv_image, cv2.COLOR_BGR2GRAY)
     #创建一个级联分类器
-    face_casecade = cv2.CascadeClassifier('/home/robot/catkin_ws/src/wpb_home_python/config/haarcascade_frontalface_alt.xml')
+    face_casecade = cv2.CascadeClassifier('/home/robot/catkin_ws/src/wpb_home/wpb_home_python/config/haarcascade_frontalface_alt.xml')
     #人脸检测
     face = face_casecade.detectMultiScale(gray_img, 1.3, 5)
     for (x,y,w,h) in face:

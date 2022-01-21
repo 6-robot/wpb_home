@@ -46,8 +46,7 @@ if __name__ == "__main__":
     result_sub = rospy.Subscriber("/wpb_home/grab_result", String, cbGrabResult, queue_size=10)
  
     # 延时三秒，让后台的话题初始化操作能够完成
-    d = rospy.Duration(3.0)
-    rospy.sleep(d)
+    rospy.sleep(3)
 
     # 发送消息，激活物品检测行为
     msg = String()

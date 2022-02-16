@@ -18,7 +18,8 @@ if __name__ == "__main__":
     rospy.sleep(1)
     # 构建航点名称消息包
     msg = String()
-    msg.data = '1'
+    # msg.data = '1'
+    msg.data = 'kitchen'
     # 发送航点名称消息包
     waypoint_pub.publish(msg)
     # 构建循环让程序别退出，等待导航结果

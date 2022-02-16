@@ -15,7 +15,8 @@ if __name__ == "__main__":
     # 构建目标航点消息
     goal = MoveBaseGoal()
     # 目标航点的参考坐标系
-    goal.target_pose.header.frame_id="map"
+    # goal.target_pose.header.frame_id="map"
+    goal.target_pose.header.frame_id="base_footprint"
     # 目标航点在参考坐标系里的三维数值
     goal.target_pose.pose.position.x = 1.0
     goal.target_pose.pose.position.y = 0.0

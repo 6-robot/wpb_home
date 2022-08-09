@@ -26,7 +26,3 @@
 *.exe
 *.out
 *.app
-
-#map
-wpb_home_tutorials/maps/*.pgm
-wpb_home_tutorials/maps/*.yaml

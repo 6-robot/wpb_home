@@ -193,10 +193,17 @@ void callbackPointCloud(const sensor_msgs::PointCloud2 &input)
         int rgb_face_x = face_iter->x  + face_iter->width/2;
         int rgb_face_y = face_iter->y + face_iter->height/2;
         int index_pc = rgb_face_y*input.width + rgb_face_x;
+
+        if(index_pc >= cloud_src.points.size())
+            continue;
+
         float face_x = cloud_src.points[index_pc].x;
         float face_y = cloud_src.points[index_pc].y;
         float face_z = cloud_src.points[index_pc].z;
-       
+
+       if(isnanf(face_x) || isnanf(face_y) || isnanf(face_z))
+            continue;
+            
         p.x = 0.2; p.y = 0; p.z = 1.37; line_face.points.push_back(p);
         //p.x = -0.1; p.y = 0; p.z = 1.25; line_face.points.push_back(p);
         p.x = face_x; p.y = face_y; p.z = face_z; line_face.points.push_back(p);

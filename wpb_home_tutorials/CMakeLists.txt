@@ -59,7 +59,9 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate services in the 'srv' folder
 add_service_files(DIRECTORY srv
                   FILES
-                  Follow.srv)
+                  Follow.srv
+                  Explore.srv
+                  Near.srv)
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -202,6 +204,26 @@ target_link_libraries(wpb_home_follow
   ${PCL_LIBRARIES}
 )
 add_dependencies(wpb_home_follow wpb_home_tutorials_gencpp)
+
+## Declare a C++ executable
+add_executable(wpb_home_explore
+  src/wpb_home_explore.cpp
+)
+add_dependencies(wpb_home_explore ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(wpb_home_explore
+  ${catkin_LIBRARIES} -lkl_outlier
+  ${PCL_LIBRARIES}
+)
+add_dependencies(wpb_home_explore wpb_home_tutorials_gencpp)
+
+## Declare a C++ executable
+add_executable(wpb_home_near
+  src/wpb_home_near.cpp
+)
+add_dependencies(wpb_home_near ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(wpb_home_near
+  ${catkin_LIBRARIES}
+)
 
 ## Declare a C++ executable
 add_executable(wpb_home_obj_detect
@@ -379,6 +401,14 @@ add_executable(wpb_home_pointcloud_cluster
 )
 add_dependencies(wpb_home_pointcloud_cluster ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(wpb_home_pointcloud_cluster
+  ${catkin_LIBRARIES}
+)
+
+add_executable(pointcloud_pixel
+  src/pointcloud_pixel.cpp
+)
+add_dependencies(pointcloud_pixel ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(pointcloud_pixel
   ${catkin_LIBRARIES}
 )
 

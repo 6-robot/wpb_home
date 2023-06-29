@@ -14,6 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
     std_msgs
     pluginlib
     tf
+    tf_conversions
 )
 
 find_package(OpenCV REQUIRED)

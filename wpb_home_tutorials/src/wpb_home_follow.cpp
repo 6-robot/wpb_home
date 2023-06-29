@@ -34,6 +34,14 @@
 /*!******************************************************************
  @author     ZhangWanjie
  ********************************************************************/
+#define CV_IMWRITE_PNG_COMPRESSION cv::IMWRITE_PNG_COMPRESSION
+#define CV_IMWRITE_JPEG_QUALITY cv::IMWRITE_JPEG_QUALITY
+#define CV_IMWRITE_PNG_STRATEGY cv::IMWRITE_PNG_STRATEGY
+#define CV_IMWRITE_PNG_STRATEGY_RLE cv::IMWRITE_PNG_STRATEGY_RLE
+#define CV_BGRA2BGR cv::COLOR_BGRA2BGR
+#define CV_RGBA2BGR cv::COLOR_RGBA2BGR
+#define CV_AA LINE_AA
+
 
 #include <ros/ros.h>
 #include <pcl/point_cloud.h>
@@ -49,6 +57,7 @@
 #include <math.h>
 #include "kl_outlier.h"
 #include "wpb_home_tutorials/Follow.h"
+#include <wpb_home_behaviors/Coord.h>
 
 static std::string pc_topic;
 static ros::Publisher vel_pub;
@@ -60,11 +69,13 @@ static visualization_msgs::Marker line_follow;
 static visualization_msgs::Marker text_marker;
 static bool bActive = false;
 static float ranges[360];
-static float keep_dist = 1.0;   //跟随距离
+static float keep_dist = 1;   //跟随距离
 static float flw_x = keep_dist;
 static float flw_y = 0;
 static float new_flw_x = 0;
 static float new_flw_y = 0;
+static float human_x=0;
+static float human_y=0;
 static float max_linear_vel = 0.5;
 static float max_angular_vel = 1.5;
 static float raw[1920*1080*2];
@@ -133,21 +144,20 @@ void ProcCloudCB(const sensor_msgs::PointCloud2 &input)
     DrawText("Follow_Target",0.1,flw_x,flw_y,box_height+0.05,1,1,0);
 }
 
-void ScanCB(const sensor_msgs::LaserScan::ConstPtr& scan)
-{
-    for(int i=0;i<360;i++)
-    {
-        ranges[i] = scan->ranges[i];
-    }
 
-    filter(flw_x,flw_y,ranges,raw,new_flw_x,new_flw_y);
-    flw_x = new_flw_x;
-    flw_y = new_flw_y;
+void ProcHuman_pose(const wpb_home_behaviors::Coord::ConstPtr &msg)
+{
+    //ROS_WARN("ProcHuman_pose");
+    human_x = (msg->x)[0];
+    human_y = (msg->z)[0];
+    float d_angle = (msg->probability)[0];
 
     geometry_msgs::Twist vel_cmd;
-    float flw_dist = sqrt(flw_x*flw_x + flw_y*flw_y);
+
+    float flw_dist = sqrt(human_x*human_x + human_y*human_y);
+
     float diff_dist = flw_dist - keep_dist;
-    float flw_linear = diff_dist * 0.3;
+    float flw_linear = diff_dist * 0.1;
     if(fabs(flw_linear) > 0.05)
     {
         vel_cmd.linear.x = flw_linear;
@@ -159,9 +169,7 @@ void ScanCB(const sensor_msgs::LaserScan::ConstPtr& scan)
     {
         vel_cmd.linear.x = 0;
     }
-    float d_angle = 0;
-    float abs_x = fabs(new_flw_x);
-    if(abs_x != 0) d_angle = atan(flw_y/abs_x);
+    ROS_INFO("human_x:%f, human_y:%f, diff_dist:%f, d_angle:%f",human_x,human_y,diff_dist,d_angle);
     float flw_turn = d_angle * 1.5;
     if(fabs(flw_turn) > 0.1)
     {
@@ -177,6 +185,13 @@ void ScanCB(const sensor_msgs::LaserScan::ConstPtr& scan)
     {
         vel_pub.publish(vel_cmd);
     }
+    
+}
+
+
+void ScanCB(const sensor_msgs::LaserScan::ConstPtr& scan)
+{
+
 }
 
 void DrawBox(float inMinX, float inMaxX, float inMinY, float inMaxY, float inMinZ, float inMaxZ, float inR, float inG, float inB)
@@ -339,6 +354,7 @@ int main(int argc, char **argv)
 
     ros::NodeHandle nh;
     ros::Subscriber pc_sub = nh.subscribe(pc_topic, 1 , ProcCloudCB);
+    ros::Subscriber pose_sub = nh.subscribe<wpb_home_behaviors::Coord>("/Human_pose",1,ProcHuman_pose);
     ros::Subscriber scan_sub = nh.subscribe<sensor_msgs::LaserScan>("/scan",1,ScanCB);
 
     ros::ServiceServer start_svr = nh.advertiseService("wpb_home_follow/start", follow_start);

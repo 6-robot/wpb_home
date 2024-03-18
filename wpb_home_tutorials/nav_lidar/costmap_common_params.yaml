@@ -1,14 +1,14 @@
 obstacle_range: 6.0
 raytrace_range: 6.0
 robot_radius: 0.25
-inflation_radius: 0.30
-observation_sources: scan_filtered
-scan_filtered: {
+inflation_radius: 0.50
+observation_sources: lidar
+lidar: {
     sensor_frame: base_footprint, 
     max_obstacle_height: 1.5, 
     min_obstacle_height: 0.0, 
     data_type: LaserScan,
-    topic: /scan_filtered, 
+    topic: /scan, 
     marking: true, 
     clearing: true
     }

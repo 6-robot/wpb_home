@@ -1,0 +1,43 @@
+DWAPlannerROS:
+  # 机器人配置参数
+  max_vel_x: 0.3 # 最大x方向速度，0.55
+  min_vel_x: -0.05 # 最小x方向速度
+  max_vel_y: 0.0 # 差分驱动机器人的最大y方向速度为 0.0
+  min_vel_y: 0.0 # 差分驱动机器人的最小y方向速度为 0.0
+  max_vel_trans: 0.3 # 最大平移速度
+  min_vel_trans: 0.01 # 当平移速度很小时的最小转换速度
+  # 【注意事项】
+  # 不要将 min_vel_trans 设置为0.0，否则dwa将始终认为平移速度是无法忽略的，并且会产生小的就地旋转速度。
+  trans_stopped_vel: 0.1
+  max_vel_rot: 1.0 # 最大旋转速度，略小于基座的功能
+  min_vel_rot: -0.01 # 当平移速度可以忽略时的最小角速度
+  theta_stopped_vel: 0.1
+  acc_lim_trans: 2.5 #最大平移加速度
+  acc_lim_x: 2.5 # x方向的最大加速度限制
+  acc_lim_y: 0.0 # y方向的加速度限制（差分驱动机器人应该设置为0.0）
+  acc_lim_theta: 6.0 # 旋转的加速度限制
+  # 目标容差参数
+  yaw_goal_tolerance: 0.34 # 目标航向容差
+  xy_goal_tolerance: 0.25  # 目标xy容差
+  latch_xy_goal_tolerance: false
+  # 向前模拟参数
+  sim_time: 1.7 # 模拟时间，1.7
+  vx_samples: 100 # x方向速度采样数，3
+  vy_samples: 1 # 差分驱动机器人y方向速度采样数，只有一个样本
+  vtheta_samples: 120 # 旋转速度采样数，20
+  # 轨迹评分参数
+  path_distance_bias: 64.0 # 路径距离偏差，32.0，靠近全局路径的权重
+  goal_distance_bias: 24.0 # 目标距离偏差，24.0，接近导航目标点的权重
+  occdist_scale: 0.01 # 控制器避障的权重，0.01
+  forward_point_distance: 0.325 # 附加评分点的位置，0.325
+  stop_time_buffer: 0.2 # 在碰撞前机器人必须停止的时间长度，留出缓冲空间，0.2
+  scaling_speed: 0.25 # 开始缩减机器人足迹的绝对速度，0.25
+  max_scaling_factor: 0.2 # 机器人足迹在高速时能缩减的最大程度，0.2
+  # 防振动参数
+  oscillation_reset_dist: 0.05 # 重置振动标志前需要行进的距离，0.05
+  # 辅助调试选项
+  publish_traj_pc : true # 发布轨迹
+  publish_cost_grid_pc: true # 发布代价网格
+  global_frame_id: odom # 全局框架标识
+  # 差分驱动机器人配置
+  holonomic_robot: false # 是否全向移动机器人

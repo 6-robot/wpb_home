@@ -38,12 +38,14 @@
         <rosparam file="$(find wpb_home_tutorials)/nav_lidar/costmap_common_params.yaml" command="load" ns="local_costmap" />
         <rosparam file="$(find wpb_home_tutorials)/nav_lidar/local_costmap_params.yaml" command="load" />
         <rosparam file="$(find wpb_home_tutorials)/nav_lidar/global_costmap_params.yaml" command="load" />
-    <rosparam file="$(find wpb_home_tutorials)/nav_lidar/local_planner_params.yaml" command="load" />
+        <rosparam file="$(find wpb_home_tutorials)/nav_lidar/local_planner_params.yaml" command="load" />
         <param name="base_global_planner" value="global_planner/GlobalPlanner" /> 
         <param name="use_dijkstra" value="true"/>
         <param name="base_local_planner" value="wpbh_local_planner/WpbhLocalPlanner" />
 
         <param name= "controller_frequency" value="10" type="double"/>
+        <param name= "oscillation_timeout" value="8" type="double"/>
+        <param name= "oscillation_distance" value="0.2" type="double"/>
     </node>
 
     <arg name="model" default="$(find wpb_home_bringup)/urdf/wpb_home_mani.urdf"/>

@@ -40,6 +40,8 @@
     <param name="base_local_planner" value="wpbh_local_planner/WpbhLocalPlanner" />
 
     <param name= "controller_frequency" value="10" type="double"/>
+    <param name= "oscillation_timeout" value="8" type="double"/>
+    <param name= "oscillation_distance" value="0.2" type="double"/>
   </node>
 
   <!-- RViz and TF tree -->

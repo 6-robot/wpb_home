@@ -17,18 +17,18 @@ DWAPlannerROS:
   acc_lim_theta: 6.0      # 旋转的加速度上限
 
   # 目标容差参数
-  yaw_goal_tolerance: 0.34        # 目标航向容差
-  xy_goal_tolerance: 0.25         # 目标xy容差
-  latch_xy_goal_tolerance: false  # 到达目标后停止移动（有bug）
+  yaw_goal_tolerance: 0.1         # 目标航向容差
+  xy_goal_tolerance: 0.05         # 目标xy容差
+  latch_xy_goal_tolerance: false  # 到达目标容差范围后，停止移动，只旋转调整航向
 
   # 向前模拟参数
   sim_time: 1.7       # 模拟时间，默认值 1.7
-  vx_samples: 3    # x方向速度采样数，默认值 3
+  vx_samples: 3       # x方向速度采样数，默认值 3
   vy_samples: 1       # 差分驱动机器人y方向速度采样数，只有一个样本
-  vtheta_samples: 20 # 旋转速度采样数，默认值 20
+  vtheta_samples: 20  # 旋转速度采样数，默认值 20
 
   # 轨迹评分参数
-  path_distance_bias: 64.0  # 靠近全局路径的权重，默认值 32.0
+  path_distance_bias: 32.0  # 靠近全局路径的权重，默认值 32.0
   goal_distance_bias: 24.0  # 接近导航目标点的权重，默认值 24.0
   occdist_scale: 0.01       # 控制器避障的权重，默认值 0.01
   forward_point_distance: 0.325 # 从机器人到评分点的位置，默认值 0.325
@@ -37,11 +37,11 @@ DWAPlannerROS:
   max_scaling_factor: 0.2   # 机器人足迹在高速时能缩放的最大系数，默认值 0.2
 
   # 防振动参数
-  oscillation_reset_dist: 0.05 # 重置振动标志前需要行进的距离，默认值 0.05
+  oscillation_reset_dist: 1.05 # 重置振动标志前需要行进的距离，默认值 0.05
 
   # 辅助调试选项
-  publish_traj_pc : true      # 在 RViz 里发布轨迹
-  publish_cost_grid_pc: true  # 在 RViz 里发布代价网格
+  publish_traj_pc : true      # 是否在 RViz 里发布轨迹
+  publish_cost_grid_pc: true  # 是否在 RViz 里发布代价网格
   global_frame_id: odom       # 基础坐标系
 
   # 差分驱动机器人配置

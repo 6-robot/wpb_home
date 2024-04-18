@@ -17,7 +17,7 @@ TebLocalPlannerROS:
  acc_lim_theta: 1.0       # 最大角加速度
 
  # ********************** 转弯半径相关 ********************
- min_turning_radius: 0.5         # 小转弯半径。如果设为 0，表示可以原地转弯。
+ min_turning_radius: 0.0         # 小转弯半径。如果设为 0，表示可以原地转弯。
  wheelbase: 0.31                 # 只有在 cmd_angle_instead_rotvel为true时才有效
  cmd_angle_instead_rotvel: False # 是否将收到的角速度消息转换为操作上的角度变化。设置成 True 时，话题 vel_msg.angular.z 内的数据是转轴角度。
  # ********************************************************************

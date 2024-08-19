@@ -152,8 +152,8 @@ int main(int argc, char** argv)
     n_param.param<std::string>("serial_port", strSerialPort, "/dev/ttyUSB0");
     m_wpb_home.Open(strSerialPort.c_str(),115200);
 
-    bool bImuOdom = false;
-    n_param.param<bool>("imu_odom", bImuOdom, false);
+    bool bImu = true;
+    n_param.param<bool>("imu", bImu, true);
 
     bool bOdom = true;
     n_param.param<bool>("odom", bOdom, true);
@@ -235,7 +235,7 @@ int main(int argc, char** argv)
         last_time = current_time;
         current_time = ros::Time::now();
 
-        if(bImuOdom == false)
+        if(bOdom == true)
         {
             double fVx,fVy,fVz;
             double fPosDiff[3];
@@ -289,12 +289,9 @@ int main(int argc, char** argv)
                 odom.twist.twist.angular.y = 0;
                 odom.twist.twist.angular.z = fVz;
 
-                if(bOdom == true)
-                {
-                    //plublishing the odometry and new tf
-                    broadcaster.sendTransform(odom_trans);
-                    odom_pub.publish(odom);
-                }
+                //plublishing the odometry and new tf
+                broadcaster.sendTransform(odom_trans);
+                odom_pub.publish(odom);
 
                 lastVel.linear.x = fVx;
                 lastVel.linear.y = fVy;
@@ -306,21 +303,19 @@ int main(int argc, char** argv)
             }
             else
             {
-                if(bOdom == true)
-                {
-                    odom_trans.header.stamp = ros::Time::now();
-                    //plublishing the odometry and new tf
-                    broadcaster.sendTransform(odom_trans);
-                    odom.header.stamp = ros::Time::now();
-                    odom_pub.publish(odom);
-                    //ROS_INFO("[odom] zero");
-                }
+                odom_trans.header.stamp = ros::Time::now();
+                //plublishing the odometry and new tf
+                broadcaster.sendTransform(odom_trans);
+                odom.header.stamp = ros::Time::now();
+                odom_pub.publish(odom);
+                //ROS_INFO("[odom] zero");
             }
 
             pose_diff_pub.publish(pose_diff_msg);
             //ROS_INFO("[pose_diff_msg] x= %.2f  y=%.2f  th= %.2f", pose_diff_msg.x,pose_diff_msg.y,pose_diff_msg.theta);
         }
-        else
+        
+        if(bImu == true)
         {
             //imu
             sensor_msgs::Imu imu_msg = sensor_msgs::Imu();	

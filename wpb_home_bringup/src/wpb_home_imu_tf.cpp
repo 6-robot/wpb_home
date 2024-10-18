@@ -50,7 +50,7 @@ void imuCallback(const sensor_msgs::Imu::ConstPtr& msg)
     tf::Transform transform;
     transform.setOrigin( tf::Vector3(0, 0, 0) );
     tf::Quaternion q(msg->orientation.x,msg->orientation.y,msg->orientation.z,msg->orientation.w);
-    printf("[wpb_home_imu_tf] Yaw= %f \n",tf::getYaw(q)*180/3.1415);
+    ROS_WARN("[wpb_home_imu_tf] Yaw= %f ",tf::getYaw(q)*180/3.1415);
     transform.setRotation(q);
     odom_broadcaster.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "imu_base", "base_footprint"));
 }
